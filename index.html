@@ -41,25 +41,27 @@
       position: relative;
     }
 
-    .album-cover-wrap embed,
-    .album-cover-wrap object {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
+    .album-cover-wrap {
+      text-decoration: none;
     }
 
-    .album-cover-fallback {
-      display: none;
+    .cover-inner {
       width: 100%;
       height: 100%;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
       gap: 8px;
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.15s;
     }
+
+    .album-cover-wrap:hover .cover-inner,
+    .about-cover:hover .cover-inner { color: #bbb; }
 
     .band-name {
       font-size: clamp(0.75rem, 2vw, 0.85rem);
@@ -206,12 +208,8 @@
       background: #1a1a1a;
     }
 
-    .about-cover embed,
-    .about-cover object {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
+    .about-cover {
+      text-decoration: none;
     }
 
     .about-right { display: flex; flex-direction: column; gap: 48px; }
@@ -349,9 +347,12 @@
 <body>
 
 <header class="site-header">
-  <div class="album-cover-wrap">
-    <embed src="album_cover.pdf" type="application/pdf" />
-  </div>
+  <a class="album-cover-wrap" href="album_cover.pdf" target="_blank" rel="noopener noreferrer" title="View album cover">
+    <div class="cover-inner">
+      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" opacity="0.3"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>View Cover</span>
+    </div>
+  </a>
   <div class="band-name">Simulated Analogues</div>
   <div class="album-title">Multiplicity</div>
   <div class="album-year">2025</div>
@@ -373,9 +374,12 @@
   <div class="about-layout">
 
     <div class="about-left">
-      <div class="about-cover">
-        <embed src="album_cover.pdf" type="application/pdf" />
-      </div>
+      <a class="about-cover" href="album_cover.pdf" target="_blank" rel="noopener noreferrer" title="View album cover">
+        <div class="cover-inner">
+          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" opacity="0.3"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>View Cover</span>
+        </div>
+      </a>
     </div>
 
     <div class="about-right">
