@@ -279,26 +279,70 @@
     .photo-placeholder svg { opacity: 0.4; }
 
     /* Lyrics */
-    .lyrics-block {
+    .lyrics-accordion { display: flex; flex-direction: column; gap: 8px; }
+
+    .lyric-item {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 24px;
+      overflow: hidden;
     }
 
-    .lyrics-song-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 14px;
+    .lyric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
     }
 
-    .lyrics-text {
+    .lyric-header:hover { background: #1e1e1e; }
+
+    .lyric-header-left { display: flex; align-items: center; gap: 14px; }
+
+    .lyric-num {
+      width: 22px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+
+    .lyric-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .lyric-chevron {
+      color: var(--muted);
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .lyric-item.open .lyric-chevron { transform: rotate(180deg); }
+
+    .lyric-body {
+      display: none;
+      padding: 0 20px 20px 56px;
+    }
+
+    .lyric-item.open .lyric-body { display: block; }
+
+    .lyric-text {
       color: var(--muted);
       font-size: 0.88rem;
-      line-height: 1.85;
-      font-style: italic;
+      line-height: 1.9;
       white-space: pre-line;
+    }
+
+    .lyric-unavailable {
+      color: #444;
+      font-size: 0.8rem;
+      font-style: italic;
     }
   </style>
 </head>
@@ -340,14 +384,17 @@
       <div>
         <div class="block-title">Tracklist</div>
         <ol class="tracklist">
-          <li><span class="track-num">1</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">2</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">3</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">4</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">5</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">6</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">7</span><span class="track-name track-placeholder">Track Title</span></li>
-          <li><span class="track-num">8</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">1</span><span class="track-name">Snowy Samba</span></li>
+          <li><span class="track-num">2</span><span class="track-name">Infinite Wine</span></li>
+          <li><span class="track-num">3</span><span class="track-name">I Drive</span></li>
+          <li><span class="track-num">4</span><span class="track-name">Open Your Eyes</span></li>
+          <li><span class="track-num">5</span><span class="track-name">Under the Sun</span></li>
+          <li><span class="track-num">6</span><span class="track-name">Once in a While</span></li>
+          <li><span class="track-num">7</span><span class="track-name">We Born and We Die</span></li>
+          <li><span class="track-num">8</span><span class="track-name">Patterns</span></li>
+          <li><span class="track-num">9</span><span class="track-name">Chicago</span></li>
+          <li><span class="track-num">10</span><span class="track-name">Running Out of Time</span></li>
+          <li><span class="track-num">11</span><span class="track-name">Flying Cowboy Air</span></li>
         </ol>
       </div>
 
@@ -375,13 +422,7 @@
       <!-- Lyrics -->
       <div>
         <div class="block-title">Lyrics</div>
-        <div class="lyrics-block">
-          <div class="lyrics-song-title">Track Title</div>
-          <div class="lyrics-text">Lyrics will appear here…
-
-Add the words to each track and they'll
-be displayed in this section.</div>
-        </div>
+        <div class="lyrics-accordion" id="lyrics-accordion"></div>
       </div>
 
     </div>
@@ -434,6 +475,185 @@ be displayed in this section.</div>
     { name: "AMI Entertainment",  fallback: "AMI",           color: "#C8962E" },
     { name: "Lissen",             fallback: "LI",            color: "#6C3FC5" },
   ];
+
+  /* ── Lyrics accordion ── */
+  const tracks = [
+    { num: 1,  title: "Snowy Samba",         lyrics: null },
+    { num: 2,  title: "Infinite Wine",        lyrics: `You've been running all your life
+Stop the time, crystalline
+Sometimes choice feels like a knife
+Thought you might cross the line
+
+Riding the tide, infinite wine
+Catching the light far from divine
+Colors so bright, take some of mine
+
+Riding the tide, infinite wine,
+Catching the light far from divine
+Colors so bright, take some of mine
+
+Riding the tide, infinite wine,
+Catching the light far from divine
+Colors so bright, take some of mine
+
+I've been running all your life
+Stop the time, crystalline
+Sometimes choice feels like a knife
+Thought you might cross the line` },
+    { num: 3,  title: "I Drive",              lyrics: null },
+    { num: 4,  title: "Open Your Eyes",       lyrics: null },
+    { num: 5,  title: "Under the Sun",        lyrics: null },
+    { num: 6,  title: "Once in a While",      lyrics: `Once in a while,
+I dream that I am flying
+Souls that are not dying
+Will never be, free
+
+Under moonlight
+I'll greet you with a smile,
+Though it's been a while
+Together we'll be
+
+Once in a while,
+I dream that I am flying,
+Souls that are not dying.
+Will never be free` },
+    { num: 7,  title: "We Born and We Die",   lyrics: `We born and we die
+We born
+I have some existential storm of questions
+And we die
+But then I will go out and drink a beer and will forget all this
+
+Other worlds, other planets orbiting distant stars in our galaxy, the Milky Way,
+I decided to worship the sun
+I think it's much more interesting to live not knowing
+Everybody got their pain, everybody got a story
+
+We born
+Police should use all the
+threat to democracy
+enormous threat to democracy
+
+using control
+
+If you want my money, you'd better listen to me
+
+the longer you live
+the more you look around
+the more you realise
+something is fucked up
+
+Justice is a kind of art
+raining down on all of us
+It leaks through cracks when rich men pass
+We cough, they call it noble gas
+
+FU FU FU All of you
+FU FU FU All of you
+
+Flame that breathes through death of air
+an allodox desire
+
+as we draft through time and space
+on a car without tyres
+
+And as the sun is new
+each and every day
+nothing does endure
+only constant change
+in the same river
+you can not step twice
+roll your head just
+like a dice cause
+We born
+Come with me × 2
+And we die
+We born
+Come with me × 2
+And we die
+
+I don't care what the people say
+I am a piece of shit I live my life that way
+
+One-Two For our economy
+The war is important for our economy
+It's all about the money! Die!
+I don't care, NOW!!!
+
+Fuck you
+Fuck you
+
+All about the money, the money, the money!!
+
+It's simple we born and we die
+we die and we born
+we born and we die
+we die and we born
+
+The war is important for our economy I said
+It's all about the money, HAHAHAHA
+It's all about the money
+The money is important. .. economy .. .economy.. FU
+Aghhh
+The war is important for our economy, economy!!
+We born and we die
+We born and we die
+We born and we die!!!
+
+We born,
+And we die
+
+What's up, my man
+I have some existential storm of questions
+But then I will go out and drink a beer and forget all this` },
+    { num: 8,  title: "Patterns",             lyrics: null },
+    { num: 9,  title: "Chicago",              lyrics: null },
+    { num: 10, title: "Running Out of Time",  lyrics: null },
+    { num: 11, title: "Flying Cowboy Air",    lyrics: `Fly high, cowboy air
+Fly high, cowboy air
+Fly high, cowboy air
+Keep on flying
+
+Fly high, cowboy air
+Fly high, cowboy air
+Fly high, cowboy air
+Keep on flying
+
+Every morning he rides on a cloud
+He is wearing a colorless shroud
+Flying cowboy air
+Fly and save
+everyone everywhere
+everyone everywhere` },
+  ];
+
+  const accordion = document.getElementById("lyrics-accordion");
+  tracks.forEach(t => {
+    const item = document.createElement("div");
+    item.className = "lyric-item";
+
+    const header = document.createElement("div");
+    header.className = "lyric-header";
+    header.innerHTML = `
+      <div class="lyric-header-left">
+        <span class="lyric-num">${t.num}</span>
+        <span class="lyric-title">${t.title}</span>
+      </div>
+      <span class="lyric-chevron">▼</span>`;
+
+    const body = document.createElement("div");
+    body.className = "lyric-body";
+    body.innerHTML = t.lyrics
+      ? `<div class="lyric-text">${t.lyrics.replace(/</g,"&lt;")}</div>`
+      : `<div class="lyric-unavailable">Lyrics not yet available</div>`;
+
+    header.addEventListener("click", () => {
+      item.classList.toggle("open");
+    });
+
+    item.appendChild(header);
+    item.appendChild(body);
+    accordion.appendChild(item);
+  });
 
   const CDN = "https://cdn.simpleicons.org/";
   const grid = document.getElementById("grid");
