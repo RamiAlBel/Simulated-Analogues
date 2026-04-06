@@ -3,48 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CD Baby Distribution Partners</title>
+  <title>Multiplicity — Simulated Analogues</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #252525;
+      --border-hover: #404040;
+      --text: #ffffff;
+      --muted: #777;
+      --accent: #c8a97e;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 48px 24px 64px;
     }
 
-    header {
+    /* ── Header ── */
+    .site-header {
       text-align: center;
-      margin-bottom: 56px;
+      padding: 56px 24px 0;
     }
 
-    header img.logo {
-      width: 160px;
-      margin-bottom: 20px;
-      filter: brightness(0) invert(1);
+    .album-cover-wrap {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 28px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      background: #1a1a1a;
+      position: relative;
     }
 
-    header h1 {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #ffffff;
+    .album-cover-wrap embed,
+    .album-cover-wrap object {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
     }
 
-    header p {
-      margin-top: 10px;
-      color: #888;
-      font-size: 1rem;
+    .album-cover-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 16px;
+    .band-name {
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .album-title {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .album-year {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Nav tabs ── */
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin: 40px 24px 0;
+      border-bottom: 1px solid var(--border);
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    .nav-btn:hover:not(.active) {
+      color: #bbb;
+    }
+
+    /* ── Sections ── */
+    .section {
+      display: none;
+      padding: 48px 24px 80px;
       max-width: 1100px;
       margin: 0 auto;
+    }
+
+    .section.active { display: block; }
+
+    /* ── Listen Now ── */
+    .section-label {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 14px;
     }
 
     .card {
@@ -52,99 +150,295 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 24px 12px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 16px;
+      gap: 10px;
+      padding: 22px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       text-decoration: none;
-      color: #ccc;
-      font-size: 0.78rem;
+      color: #aaa;
+      font-size: 0.72rem;
       font-weight: 500;
       text-align: center;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-      cursor: pointer;
+      transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
     }
 
     .card:hover {
-      transform: translateY(-4px);
-      background: #222;
-      border-color: #444;
+      transform: translateY(-3px);
+      background: #1e1e1e;
+      border-color: var(--border-hover);
       color: #fff;
     }
 
-    .card img {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-    }
+    .card img { width: 44px; height: 44px; object-fit: contain; }
 
-    /* Fallback badge for platforms without icons */
     .badge {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #fff;
       flex-shrink: 0;
+    }
+
+    /* ── About ── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .about-layout { grid-template-columns: 1fr; }
+    }
+
+    .about-cover {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      background: #1a1a1a;
+    }
+
+    .about-cover embed,
+    .about-cover object {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .about-right { display: flex; flex-direction: column; gap: 48px; }
+
+    .block-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    /* Track list */
+    .tracklist { list-style: none; }
+
+    .tracklist li {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    .tracklist li:last-child { border-bottom: none; }
+
+    .track-num {
+      width: 24px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .track-name { flex: 1; }
+
+    .track-placeholder { color: var(--muted); font-style: italic; }
+
+    /* Photos */
+    .photo-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .photo-placeholder {
+      aspect-ratio: 4/3;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .photo-placeholder:hover { border-color: var(--border-hover); }
+
+    .photo-placeholder svg { opacity: 0.4; }
+
+    /* Lyrics */
+    .lyrics-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .lyrics-song-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .lyrics-text {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.85;
+      font-style: italic;
+      white-space: pre-line;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>CD Baby Distribution Partners</h1>
-  <p>Music distributed to 150+ platforms worldwide</p>
+<header class="site-header">
+  <div class="album-cover-wrap">
+    <embed src="album_cover.pdf" type="application/pdf" />
+  </div>
+  <div class="band-name">Simulated Analogues</div>
+  <div class="album-title">Multiplicity</div>
+  <div class="album-year">2025</div>
 </header>
 
-<div class="grid" id="grid"></div>
+<nav class="nav">
+  <button class="nav-btn active" data-tab="listen">Listen Now</button>
+  <button class="nav-btn" data-tab="about">About the Album</button>
+</nav>
+
+<!-- ── Listen Now ── -->
+<section class="section active" id="tab-listen">
+  <p class="section-label">Available on 150+ platforms worldwide</p>
+  <div class="platform-grid" id="grid"></div>
+</section>
+
+<!-- ── About ── -->
+<section class="section" id="tab-about">
+  <div class="about-layout">
+
+    <div class="about-left">
+      <div class="about-cover">
+        <embed src="album_cover.pdf" type="application/pdf" />
+      </div>
+    </div>
+
+    <div class="about-right">
+
+      <!-- Track list -->
+      <div>
+        <div class="block-title">Tracklist</div>
+        <ol class="tracklist">
+          <li><span class="track-num">1</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">2</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">3</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">4</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">5</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">6</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">7</span><span class="track-name track-placeholder">Track Title</span></li>
+          <li><span class="track-num">8</span><span class="track-name track-placeholder">Track Title</span></li>
+        </ol>
+      </div>
+
+      <!-- Photos -->
+      <div>
+        <div class="block-title">Photos</div>
+        <div class="photo-row">
+          <div class="photo-placeholder">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            <span>Add photo</span>
+          </div>
+          <div class="photo-placeholder">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            <span>Add photo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lyrics -->
+      <div>
+        <div class="block-title">Lyrics</div>
+        <div class="lyrics-block">
+          <div class="lyrics-song-title">Track Title</div>
+          <div class="lyrics-text">Lyrics will appear here…
+
+Add the words to each track and they'll
+be displayed in this section.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 <script>
+  /* ── Tab switching ── */
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  /* ── Platform grid ── */
   const platforms = [
-    { name: "Spotify",            icon: "spotify",          color: "#1DB954" },
-    { name: "Apple Music",        icon: "applemusic",       color: "#FC3C44" },
-    { name: "YouTube Music",      icon: "youtubemusic",     color: "#FF0000" },
-    { name: "Amazon Music",       icon: "amazonmusic",      color: "#00A8E1" },
-    { name: "TikTok",             icon: "tiktok",           color: "#010101" },
-    { name: "Pandora",            icon: "pandora",          color: "#3668FF" },
-    { name: "Deezer",             icon: "deezer",           color: "#FEAA2D" },
-    { name: "TIDAL",              icon: "tidal",            color: "#1DB4C2" },
-    { name: "iHeartRadio",        icon: "iheartradio",      color: "#C6002B" },
-    { name: "Shazam",             icon: "shazam",           color: "#0088FF" },
-    { name: "Qobuz",              icon: "qobuz",            color: "#009EE0" },
-    { name: "7digital",           icon: "7digital",         color: "#E3001B" },
-    { name: "Boomplay",           icon: "boomplay",         color: "#FF6B2C" },
-    { name: "KKBox",              icon: "kkbox",            color: "#33D65F" },
-    { name: "Tencent Music",      icon: "tencentqq",        color: "#12B7F5" },
-    { name: "NetEase Music",      icon: "neteasecloudmusic",color: "#C20C0C" },
-    { name: "Anghami",            icon: "anghami",          color: "#F53B6E" },
-    { name: "JioSaavn",           icon: "jiosaavn",         color: "#2BC5B4" },
-    { name: "Peloton",            icon: "peloton",          color: "#FC4C02" },
-    { name: "Hungama",            fallback: "HU",           color: "#E31837" },
-    { name: "AWA",                fallback: "AW",           color: "#000000" },
-    { name: "Claro Música",       fallback: "CM",           color: "#DA291C" },
-    { name: "Nuuday",             fallback: "NU",           color: "#5C2D91" },
-    { name: "Tuned Global",       fallback: "TG",           color: "#1A73E8" },
-    { name: "Kuack",              fallback: "KU",           color: "#FF4500" },
-    { name: "Audible Magic",      fallback: "AM",           color: "#333333" },
-    { name: "Slacker Radio",      fallback: "SR",           color: "#0079C1" },
-    { name: "InProdicon",         fallback: "IP",           color: "#004080" },
-    { name: "Kdigital",           fallback: "KD",           color: "#006633" },
-    { name: "Trebel",             fallback: "TR",           color: "#FF3B5C" },
-    { name: "AMI Entertainment",  fallback: "AMI",          color: "#C8962E" },
-    { name: "Lissen",             fallback: "LI",           color: "#6C3FC5" },
+    { name: "Spotify",            icon: "spotify",           color: "#1DB954" },
+    { name: "Apple Music",        icon: "applemusic",        color: "#FC3C44" },
+    { name: "YouTube Music",      icon: "youtubemusic",      color: "#FF0000" },
+    { name: "Amazon Music",       icon: "amazonmusic",       color: "#00A8E1" },
+    { name: "TikTok",             icon: "tiktok",            color: "#010101" },
+    { name: "Pandora",            icon: "pandora",           color: "#3668FF" },
+    { name: "Deezer",             icon: "deezer",            color: "#FEAA2D" },
+    { name: "TIDAL",              icon: "tidal",             color: "#1DB4C2" },
+    { name: "iHeartRadio",        icon: "iheartradio",       color: "#C6002B" },
+    { name: "Shazam",             icon: "shazam",            color: "#0088FF" },
+    { name: "Qobuz",              icon: "qobuz",             color: "#009EE0" },
+    { name: "7digital",           icon: "7digital",          color: "#E3001B" },
+    { name: "Boomplay",           icon: "boomplay",          color: "#FF6B2C" },
+    { name: "KKBox",              icon: "kkbox",             color: "#33D65F" },
+    { name: "Tencent Music",      icon: "tencentqq",         color: "#12B7F5" },
+    { name: "NetEase Music",      icon: "neteasecloudmusic", color: "#C20C0C" },
+    { name: "Anghami",            icon: "anghami",           color: "#F53B6E" },
+    { name: "JioSaavn",           icon: "jiosaavn",          color: "#2BC5B4" },
+    { name: "Peloton",            icon: "peloton",           color: "#FC4C02" },
+    { name: "Hungama",            fallback: "HU",            color: "#E31837" },
+    { name: "AWA",                fallback: "AW",            color: "#000000" },
+    { name: "Claro Música",       fallback: "CM",            color: "#DA291C" },
+    { name: "Nuuday",             fallback: "NU",            color: "#5C2D91" },
+    { name: "Tuned Global",       fallback: "TG",            color: "#1A73E8" },
+    { name: "Kuack",              fallback: "KU",            color: "#FF4500" },
+    { name: "Audible Magic",      fallback: "AM",            color: "#333333" },
+    { name: "Slacker Radio",      fallback: "SR",            color: "#0079C1" },
+    { name: "InProdicon",         fallback: "IP",            color: "#004080" },
+    { name: "Kdigital",           fallback: "KD",            color: "#006633" },
+    { name: "Trebel",             fallback: "TR",            color: "#FF3B5C" },
+    { name: "AMI Entertainment",  fallback: "AMI",           color: "#C8962E" },
+    { name: "Lissen",             fallback: "LI",            color: "#6C3FC5" },
   ];
 
-  const SIMPLEICONS_CDN = "https://cdn.simpleicons.org/";
+  const CDN = "https://cdn.simpleicons.org/";
   const grid = document.getElementById("grid");
 
   platforms.forEach(p => {
-    if (p.skip) return;
-
     const a = document.createElement("a");
     a.className = "card";
     a.href = "https://www.google.com";
@@ -154,16 +448,14 @@
     let iconEl;
     if (p.icon) {
       iconEl = document.createElement("img");
-      // Use white version of the icon on dark background via /ffffff
-      iconEl.src = `${SIMPLEICONS_CDN}${p.icon}/ffffff`;
+      iconEl.src = `${CDN}${p.icon}/ffffff`;
       iconEl.alt = p.name;
       iconEl.onerror = function () {
-        // Fallback to colored badge if icon fails to load
-        const badge = document.createElement("div");
-        badge.className = "badge";
-        badge.style.background = p.color;
-        badge.textContent = p.name.substring(0, 2).toUpperCase();
-        this.replaceWith(badge);
+        const b = document.createElement("div");
+        b.className = "badge";
+        b.style.background = p.color;
+        b.textContent = p.name.substring(0, 2).toUpperCase();
+        this.replaceWith(b);
       };
     } else {
       iconEl = document.createElement("div");
@@ -174,7 +466,6 @@
 
     const label = document.createElement("span");
     label.textContent = p.name;
-
     a.appendChild(iconEl);
     a.appendChild(label);
     grid.appendChild(a);
