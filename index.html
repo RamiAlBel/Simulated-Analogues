@@ -201,6 +201,7 @@
         overflow: hidden;
         transition: transform 0.3s ease;
         will-change: transform;
+        touch-action: pan-y;
       }
 
       .section {
@@ -632,8 +633,8 @@
     if (window.innerWidth > 768) {
       sections.forEach((s, i) => s.classList.toggle("active", i === idx));
     } else {
-      // Mobile: slide
-      container.style.transform = `translateX(${-idx * 100}%)`;
+      // Mobile: slide using pixels for reliability
+      container.style.transform = `translateX(${-idx * window.innerWidth}px)`;
     }
 
     // Sync nav buttons
@@ -651,17 +652,55 @@
   // Handle resize: re-apply correct layout
   window.addEventListener("resize", () => goToPage(currentPage));
 
-  // ── Touch / Swipe ──
+  // ── Touch / Swipe (robust) ──
   let touchStartX = 0;
+  let touchStartY = 0;
+  let touchDeltaX = 0;
+  let isSwiping = false;
 
   container.addEventListener("touchstart", e => {
     touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchDeltaX = 0;
+    isSwiping = false;
+    // Disable transition during drag for instant feedback
+    container.style.transition = "none";
+  }, { passive: true });
+
+  container.addEventListener("touchmove", e => {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+
+    // Determine intent on first significant move
+    if (!isSwiping && Math.abs(dx) > 10) {
+      // Only treat as swipe if more horizontal than vertical
+      if (Math.abs(dx) > Math.abs(dy)) {
+        isSwiping = true;
+      } else {
+        return; // vertical scroll, bail out
+      }
+    }
+
+    if (!isSwiping) return;
+
+    touchDeltaX = dx;
+    // Live drag: shift container by current drag offset
+    const baseOffset = -currentPage * window.innerWidth;
+    container.style.transform = `translateX(${baseOffset + touchDeltaX}px)`;
   }, { passive: true });
 
   container.addEventListener("touchend", e => {
-    const delta = e.changedTouches[0].clientX - touchStartX;
-    if (delta < -50) goToPage(currentPage + 1);   // swipe left  → next page
-    else if (delta > 50) goToPage(currentPage - 1); // swipe right → prev page
+    // Re-enable transition for snap animation
+    container.style.transition = "transform 0.3s ease";
+
+    if (isSwiping) {
+      if (touchDeltaX < -50) goToPage(currentPage + 1);       // swipe left  → next page
+      else if (touchDeltaX > 50) goToPage(currentPage - 1);   // swipe right → prev page
+      else goToPage(currentPage);                               // snap back
+    }
+
+    isSwiping = false;
+    touchDeltaX = 0;
   }, { passive: true });
 
   /* ════════════════════════════
