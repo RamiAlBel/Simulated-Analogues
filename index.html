@@ -196,6 +196,7 @@
 
       .swipe-container {
         display: flex;
+        width: 100vw;
         overflow: hidden;
         transition: transform 0.3s ease;
         will-change: transform;
@@ -203,9 +204,11 @@
 
       .section {
         display: block !important;
-        min-width: 100%;
+        min-width: 100vw;
+        width: 100vw;
         flex-shrink: 0;
         padding: 32px 16px 80px;
+        overflow-x: hidden;
       }
     }
 
@@ -553,7 +556,7 @@
 
       <div class="about-left">
         <div class="about-cover">
-          <img src="album_cover.png" alt="Multiplicity — Simulated Analogues" />
+          <img src="album_cover_small.png" alt="Multiplicity — Simulated Analogues" />
         </div>
       </div>
 
@@ -647,44 +650,31 @@
 
   // ── Touch / Swipe ──
   let touchStartX = 0;
-  let touchStartY = 0;
-  let isSwiping = false;
 
   container.addEventListener("touchstart", e => {
     touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    isSwiping = false;
-  }, { passive: true });
-
-  container.addEventListener("touchmove", e => {
-    const dx = e.touches[0].clientX - touchStartX;
-    const dy = e.touches[0].clientY - touchStartY;
-    if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-      isSwiping = true;
-    }
   }, { passive: true });
 
   container.addEventListener("touchend", e => {
-    if (!isSwiping) return;
     const delta = e.changedTouches[0].clientX - touchStartX;
-    if (delta < -50) goToPage(currentPage + 1);
-    else if (delta > 50) goToPage(currentPage - 1);
-  });
+    if (delta < -50) goToPage(currentPage + 1);   // swipe left  → next page
+    else if (delta > 50) goToPage(currentPage - 1); // swipe right → prev page
+  }, { passive: true });
 
   /* ════════════════════════════
      Featured platforms
   ════════════════════════════ */
   /* ── 9 featured cards (3×3) ── */
   const featuredPlatforms = [
-    { name: "Spotify",       icon: "spotify",     color: "#1DB954" },
-    { name: "Apple Music",   icon: "applemusic",  color: "#FC3C44" },
-    { name: "YouTube Music", icon: "youtubemusic",color: "#FF0000" },
-    { name: "Amazon Music",  icon: "amazonmusic", color: "#00A8E1" },
-    { name: "TIDAL",         icon: "tidal",       color: "#1DB4C2" },
-    { name: "Deezer",        icon: "deezer",      color: "#FEAA2D" },
-    { name: "Qobuz",         icon: "qobuz",       color: "#009EE0" },
-    { name: "Bandcamp",      icon: "bandcamp",    color: "#1DA0C3" },
-    { name: "SoundCloud",    icon: "soundcloud",  color: "#FF5500" },
+    { name: "Spotify",       localImg: "spotify.png" },
+    { name: "Apple Music",   localImg: "apple_music.png" },
+    { name: "YouTube Music", icon: "youtubemusic", color: "#FF0000" },
+    { name: "Amazon Music",  localImg: "amazon_music.png" },
+    { name: "TIDAL",         localImg: "tidal.png" },
+    { name: "Deezer",        localImg: "deezer.jpg" },
+    { name: "Qobuz",         localImg: "qobuz.png" },
+    { name: "Bandcamp",      localImg: "bandcamp.png" },
+    { name: "SoundCloud",    localImg: "soundcloud.png" },
   ];
 
   /* ── Rest as plain text list ── */
@@ -707,7 +697,11 @@
     a.rel = "noopener noreferrer";
 
     let iconEl;
-    if (p.icon) {
+    if (p.localImg) {
+      iconEl = document.createElement("img");
+      iconEl.src = p.localImg;
+      iconEl.alt = p.name;
+    } else if (p.icon) {
       iconEl = document.createElement("img");
       iconEl.src = `${CDN}${p.icon}/ffffff`;
       iconEl.alt = p.name;
