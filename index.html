@@ -57,16 +57,24 @@
     /* ── Criminals videos (always-on loop) ── */
     .criminals-wrap {
       display: flex;
-      gap: 12px;
+      gap: 20px;
       justify-content: center;
       max-width: 800px;
       margin: 0 auto 28px;
       padding: 0 16px;
     }
 
-    .criminals-wrap video {
+    .criminal-item {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .criminal-item video {
+      width: 100%;
       border-radius: 10px;
       display: block;
       max-height: 300px;
@@ -74,9 +82,17 @@
       background: #000;
     }
 
+    .criminal-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
     @media (max-width: 480px) {
       .criminals-wrap { flex-direction: column; }
-      .criminals-wrap video { max-height: 220px; }
+      .criminal-item video { max-height: 220px; }
     }
 
     /* ── Social links ── */
@@ -250,28 +266,32 @@
       flex-shrink: 0;
     }
 
-    /* ── More platforms toggle ── */
+    /* ── Platform grid fixed 3 cols ── */
+    .platform-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    /* ── More platforms list ── */
     .more-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin: 20px auto 0;
+      margin: 24px auto 0;
       background: none;
-      border: 1px solid var(--border);
-      border-radius: 20px;
+      border: none;
       color: var(--muted);
       font-family: inherit;
       font-size: 0.78rem;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 8px 20px;
+      padding: 0;
       cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      transition: color 0.15s;
     }
 
-    .more-toggle:hover { border-color: var(--border-hover); color: #bbb; }
+    .more-toggle:hover { color: #bbb; }
 
     .more-toggle .chevron {
       font-size: 0.65rem;
@@ -281,14 +301,27 @@
 
     .more-toggle.open .chevron { transform: rotate(180deg); }
 
-    .more-grid {
+    .more-list {
       display: none;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 14px;
-      margin-top: 16px;
+      flex-direction: column;
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
     }
 
-    .more-grid.open { display: grid; }
+    .more-list.open { display: flex; }
+
+    .more-list a {
+      display: block;
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: #aaa;
+      font-size: 0.88rem;
+      transition: color 0.15s, padding-left 0.15s;
+    }
+
+    .more-list a:last-child { border-bottom: none; }
+    .more-list a:hover { color: #fff; padding-left: 8px; }
 
     /* ── About layout ── */
     .about-layout {
@@ -475,8 +508,14 @@
 
   <!-- Criminals — always-looping videos -->
   <div class="criminals-wrap">
-    <video src="video1.mp4" autoplay loop muted playsinline></video>
-    <video src="video2.mp4" autoplay loop muted playsinline></video>
+    <div class="criminal-item">
+      <video src="video2.mp4" autoplay loop muted playsinline></video>
+      <span class="criminal-name">Django Ramires</span>
+    </div>
+    <div class="criminal-item">
+      <video src="video1.mp4" autoplay loop muted playsinline></video>
+      <span class="criminal-name">Tuhtan'cmon</span>
+    </div>
   </div>
 
   <!-- Social links -->
@@ -538,19 +577,6 @@
           </ol>
         </div>
 
-        <!-- Criminals videos -->
-        <div>
-          <div class="block-title">Criminals</div>
-          <div class="photo-row">
-            <div class="video-item">
-              <video src="video1.mp4" controls preload="metadata"></video>
-            </div>
-            <div class="video-item">
-              <video src="video2.mp4" controls preload="metadata"></video>
-            </div>
-          </div>
-        </div>
-
         <!-- Lyrics -->
         <div>
           <div class="block-title">Lyrics</div>
@@ -569,7 +595,7 @@
     <button class="more-toggle" id="more-toggle">
       More platforms <span class="chevron">▼</span>
     </button>
-    <div class="more-grid" id="more-grid"></div>
+    <div class="more-list" id="more-list"></div>
   </section>
 
 </div>
@@ -648,46 +674,27 @@
   /* ════════════════════════════
      Featured platforms
   ════════════════════════════ */
+  /* ── 9 featured cards (3×3) ── */
   const featuredPlatforms = [
-    { name: "Spotify",        icon: "spotify",          color: "#1DB954" },
-    { name: "Apple Music",    icon: "applemusic",        color: "#FC3C44" },
-    { name: "YouTube Music",  icon: "youtubemusic",      color: "#FF0000" },
-    { name: "Amazon Music",   icon: "amazonmusic",       color: "#00A8E1" },
-    { name: "TIDAL",          icon: "tidal",             color: "#1DB4C2" },
-    { name: "Deezer",         icon: "deezer",            color: "#FEAA2D" },
-    { name: "Qobuz",          icon: "qobuz",             color: "#009EE0" },
-    { name: "Bandcamp",       icon: "bandcamp",          color: "#1DA0C3" },
-    { name: "Tencent Music",  icon: "tencentqq",         color: "#12B7F5" },
-    { name: "SoundCloud",     icon: "soundcloud",        color: "#FF5500" },
-    { name: "Yandex Music",   icon: "yandexmusic",       color: "#FF0000", fallback: "YM" },
-    { name: "JioSaavn",       icon: "jiosaavn",          color: "#2BC5B4" },
-    { name: "iHeartRadio",    icon: "iheartradio",       color: "#C6002B" },
-    { name: "JOOX",           fallback: "JX",            color: "#00C851" },
+    { name: "Spotify",       icon: "spotify",     color: "#1DB954" },
+    { name: "Apple Music",   icon: "applemusic",  color: "#FC3C44" },
+    { name: "YouTube Music", icon: "youtubemusic",color: "#FF0000" },
+    { name: "Amazon Music",  icon: "amazonmusic", color: "#00A8E1" },
+    { name: "TIDAL",         icon: "tidal",       color: "#1DB4C2" },
+    { name: "Deezer",        icon: "deezer",      color: "#FEAA2D" },
+    { name: "Qobuz",         icon: "qobuz",       color: "#009EE0" },
+    { name: "Bandcamp",      icon: "bandcamp",    color: "#1DA0C3" },
+    { name: "SoundCloud",    icon: "soundcloud",  color: "#FF5500" },
   ];
 
+  /* ── Rest as plain text list ── */
   const morePlatforms = [
-    { name: "TikTok",             icon: "tiktok",            color: "#010101" },
-    { name: "Pandora",            icon: "pandora",           color: "#3668FF" },
-    { name: "Shazam",             icon: "shazam",            color: "#0088FF" },
-    { name: "7digital",           icon: "7digital",          color: "#E3001B" },
-    { name: "Boomplay",           icon: "boomplay",          color: "#FF6B2C" },
-    { name: "KKBox",              icon: "kkbox",             color: "#33D65F" },
-    { name: "NetEase Music",      icon: "neteasecloudmusic", color: "#C20C0C" },
-    { name: "Anghami",            icon: "anghami",           color: "#F53B6E" },
-    { name: "Peloton",            icon: "peloton",           color: "#FC4C02" },
-    { name: "Hungama",            fallback: "HU",            color: "#E31837" },
-    { name: "AWA",                fallback: "AW",            color: "#444444" },
-    { name: "Claro Música",       fallback: "CM",            color: "#DA291C" },
-    { name: "Nuuday",             fallback: "NU",            color: "#5C2D91" },
-    { name: "Tuned Global",       fallback: "TG",            color: "#1A73E8" },
-    { name: "Kuack",              fallback: "KU",            color: "#FF4500" },
-    { name: "Audible Magic",      fallback: "AM",            color: "#333333" },
-    { name: "Slacker Radio",      fallback: "SR",            color: "#0079C1" },
-    { name: "InProdicon",         fallback: "IP",            color: "#004080" },
-    { name: "Kdigital",           fallback: "KD",            color: "#006633" },
-    { name: "Trebel",             fallback: "TR",            color: "#FF3B5C" },
-    { name: "AMI Entertainment",  fallback: "AMI",           color: "#C8962E" },
-    { name: "Lissen",             fallback: "LI",            color: "#6C3FC5" },
+    "Tencent Music", "Yandex Music", "JioSaavn", "iHeartRadio", "JOOX",
+    "TikTok", "Pandora", "Shazam", "7digital", "Boomplay", "KKBox",
+    "NetEase Music", "Anghami", "Peloton", "Hungama", "AWA",
+    "Claro Música", "Nuuday", "Tuned Global", "Kuack", "Audible Magic",
+    "Slacker Radio", "InProdicon", "Kdigital", "Trebel",
+    "AMI Entertainment", "Lissen",
   ];
 
   const CDN = "https://cdn.simpleicons.org/";
@@ -728,13 +735,21 @@
   const grid = document.getElementById("grid");
   featuredPlatforms.forEach(p => grid.appendChild(makeCard(p)));
 
-  const moreGrid = document.getElementById("more-grid");
-  morePlatforms.forEach(p => moreGrid.appendChild(makeCard(p)));
+  // Plain text list
+  const moreList = document.getElementById("more-list");
+  morePlatforms.forEach(name => {
+    const a = document.createElement("a");
+    a.href = "https://www.google.com";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = name;
+    moreList.appendChild(a);
+  });
 
   // More toggle
   const moreToggle = document.getElementById("more-toggle");
   moreToggle.addEventListener("click", () => {
-    const open = moreGrid.classList.toggle("open");
+    const open = moreList.classList.toggle("open");
     moreToggle.classList.toggle("open", open);
     moreToggle.querySelector(".chevron").textContent = open ? "▲" : "▼";
   });
