@@ -402,11 +402,19 @@
     .lyric-item.open .lyric-chevron { transform: rotate(180deg); }
 
     .lyric-body {
-      display: none;
-      padding: 0 20px 20px 56px;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                  padding 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      padding: 0 20px 0 56px;
     }
 
-    .lyric-item.open .lyric-body { display: block; }
+    .lyric-body > * { min-height: 0; overflow: hidden; }
+
+    .lyric-item.open .lyric-body {
+      grid-template-rows: 1fr;
+      padding-bottom: 20px;
+    }
 
     .lyric-text {
       color: var(--muted);
@@ -446,12 +454,398 @@
     }
 
     .contact-footer a:hover { opacity: 0.75; }
+
+    /* ══════════════════════════════════════════
+       FUTURISTIC ENHANCEMENTS — "Digital warmth"
+       ══════════════════════════════════════════ */
+
+    /* Accent glow token (rgb form so we can alpha it) */
+    :root {
+      --accent-rgb: 200, 169, 126;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* ── Drifting radial spotlight behind the page ── */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20vh -20vw;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60vw 50vh at 30% 20%, rgba(var(--accent-rgb), 0.14), transparent 60%),
+        radial-gradient(ellipse 50vw 45vh at 75% 80%, rgba(var(--accent-rgb), 0.08), transparent 65%),
+        radial-gradient(ellipse 45vw 40vh at 50% 50%, rgba(120, 140, 200, 0.05), transparent 70%);
+      animation: aura-drift 22s ease-in-out infinite alternate;
+      filter: blur(20px);
+    }
+
+    @keyframes aura-drift {
+      0%   { transform: translate3d(0, 0, 0) scale(1); }
+      50%  { transform: translate3d(3vw, -2vh, 0) scale(1.06); }
+      100% { transform: translate3d(-2vw, 2vh, 0) scale(1.02); }
+    }
+
+    /* ── Film grain + scanline overlay ── */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.018) 0px,
+          rgba(255, 255, 255, 0.018) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.78  0 0 0 0 0.66  0 0 0 0 0.49  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.25'/></svg>");
+      mix-blend-mode: overlay;
+      opacity: 0.55;
+      animation: grain-shift 1.6s steps(4) infinite;
+    }
+
+    @keyframes grain-shift {
+      0%   { transform: translate3d(0, 0, 0); }
+      25%  { transform: translate3d(-2%, 1%, 0); }
+      50%  { transform: translate3d(1%, -2%, 0); }
+      75%  { transform: translate3d(-1%, 2%, 0); }
+      100% { transform: translate3d(2%, -1%, 0); }
+    }
+
+    /* ── Header: waveform canvas layer ── */
+    .site-header { position: relative; overflow: hidden; }
+
+    .waveform-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    .site-header > *:not(.waveform-canvas) { position: relative; z-index: 1; }
+
+    /* ── Kinetic album title ── */
+    .album-title { position: relative; display: inline-block; cursor: default; }
+
+    .alb-letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(26px) rotateX(-40deg);
+      transform-origin: 50% 100%;
+      animation: alb-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: calc(var(--i, 0) * 55ms + 250ms);
+      transition: text-shadow 0.25s ease, transform 0.25s ease, color 0.25s ease;
+      will-change: transform, text-shadow;
+    }
+
+    @keyframes alb-in {
+      to { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    .album-title:hover .alb-letter {
+      text-shadow:
+        -1.5px 0 0 rgba(255, 70, 90, 0.75),
+         1.5px 0 0 rgba(80, 180, 255, 0.75),
+         0 0 18px rgba(var(--accent-rgb), 0.35);
+    }
+
+    .album-title:hover .alb-letter:nth-child(odd)  { transform: translateY(-2px); }
+    .album-title:hover .alb-letter:nth-child(even) { transform: translateY(2px); }
+
+    .band-name {
+      position: relative;
+      display: inline-block;
+      padding: 2px 10px;
+    }
+    .band-name::before, .band-name::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 22px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent));
+      opacity: 0.6;
+    }
+    .band-name::before { right: 100%; }
+    .band-name::after  { left: 100%; transform: scaleX(-1); }
+
+    /* ── Scroll-reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ── Tilt + magnetic glow cards ── */
+    .card {
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  background 0.25s, border-color 0.25s, color 0.25s,
+                  box-shadow 0.35s;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at var(--mx, 50%) var(--my, 50%),
+        rgba(var(--accent-rgb), 0.18),
+        transparent 55%
+      );
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card > * { position: relative; z-index: 1; transform: translateZ(20px); }
+
+    .card:hover {
+      border-color: rgba(var(--accent-rgb), 0.45);
+      box-shadow:
+        0 12px 40px -8px rgba(var(--accent-rgb), 0.25),
+        0 0 0 1px rgba(var(--accent-rgb), 0.15) inset;
+    }
+    .card:hover::before { opacity: 1; }
+
+    /* Album cover 3D tilt */
+    .about-cover {
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.4s ease;
+      will-change: transform;
+    }
+    .about-cover img {
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+    .about-cover:hover {
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.7),
+        0 0 80px -10px rgba(var(--accent-rgb), 0.4);
+    }
+
+    /* ── Video treatment ── */
+    .criminal-item video {
+      filter: contrast(1.06) saturate(0.92) sepia(0.08) brightness(0.98);
+      transition: filter 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+    }
+    .criminal-item { position: relative; }
+    .criminal-item::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: calc(100% - 28px);
+      border-radius: 10px;
+      pointer-events: none;
+      box-shadow: 0 0 0 1px transparent inset, 0 0 0 rgba(var(--accent-rgb), 0);
+      transition: box-shadow 0.4s ease;
+      z-index: 1;
+    }
+    .criminal-item:hover video {
+      filter: contrast(1.08) saturate(1.05) sepia(0) brightness(1);
+      transform: translateZ(0) scale(1.015);
+    }
+    .criminal-item:hover::before {
+      box-shadow:
+        0 0 0 1px rgba(var(--accent-rgb), 0.5) inset,
+        0 0 30px rgba(var(--accent-rgb), 0.25);
+    }
+
+    /* ── Social links glow ── */
+    .social-link {
+      position: relative;
+      overflow: visible;
+    }
+    .social-link::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(var(--accent-rgb), 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .social-link:hover {
+      border-color: rgba(var(--accent-rgb), 0.5);
+    }
+    .social-link:hover::after {
+      box-shadow: 0 0 22px rgba(var(--accent-rgb), 0.35);
+    }
+
+    /* ── Tracklist rows: subtle hover line ── */
+    .tracklist li {
+      position: relative;
+      transition: color 0.2s ease, padding-left 0.25s ease;
+    }
+    .tracklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tracklist li:hover { color: #fff; padding-left: 8px; }
+    .tracklist li:hover::before { width: 100%; }
+
+    /* ── Lyric item accent on open ── */
+    .lyric-item {
+      transition: border-color 0.3s ease, box-shadow 0.3s ease,
+                  background 0.3s ease;
+    }
+    .lyric-item.open {
+      border-color: rgba(var(--accent-rgb), 0.35);
+      box-shadow: 0 0 30px -8px rgba(var(--accent-rgb), 0.25);
+    }
+    .lyric-text {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.45s ease 0.05s, transform 0.45s ease 0.05s;
+    }
+    .lyric-item.open .lyric-text {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── More platforms list: staggered reveal on open ── */
+    .more-list a {
+      position: relative;
+    }
+    .more-list a::before {
+      content: "→";
+      position: absolute;
+      left: -4px;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      color: var(--accent);
+      transform: translateX(-6px);
+    }
+    .more-list a:hover::before {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .more-list a:hover {
+      color: var(--accent);
+    }
+
+    /* ── Marquee ticker ── */
+    .marquee {
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      margin: 32px 0 0;
+      white-space: nowrap;
+      mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    }
+    .marquee-track {
+      display: inline-flex;
+      gap: 48px;
+      animation: marquee-scroll 40s linear infinite;
+      will-change: transform;
+    }
+    .marquee-track span {
+      font-family: 'Summer Pleasure', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.75;
+    }
+    .marquee-track span::after {
+      content: "◆";
+      margin-left: 48px;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+
+    /* ── Custom cursor (desktop only) ── */
+    .cursor-dot, .cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate3d(-50%, -50%, 0);
+      mix-blend-mode: difference;
+      transition: opacity 0.2s ease;
+      opacity: 0;
+    }
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .cursor-ring {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      transition: width 0.25s ease, height 0.25s ease,
+                  border-color 0.25s ease, background 0.25s ease,
+                  opacity 0.2s ease;
+    }
+    .cursor-ring.is-hover {
+      width: 54px;
+      height: 54px;
+      border-color: rgba(var(--accent-rgb), 0.85);
+      background: rgba(var(--accent-rgb), 0.12);
+    }
+    body.cursor-ready .cursor-dot,
+    body.cursor-ready .cursor-ring { opacity: 1; }
+    body.cursor-ready, body.cursor-ready * { cursor: none !important; }
+
+    @media (hover: none), (max-width: 768px) {
+      .cursor-dot, .cursor-ring { display: none !important; }
+      body.cursor-ready, body.cursor-ready * { cursor: auto !important; }
+    }
+
+    /* ── Reduced motion: strip the theatrics ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001s !important;
+      }
+      body::before, body::after { animation: none !important; }
+      .reveal { opacity: 1; transform: none; }
+      .alb-letter { opacity: 1; transform: none; animation: none; }
+      .waveform-canvas { display: none; }
+    }
   </style>
 </head>
 <body>
 
+<!-- ── Custom cursor (desktop only, JS-activated) ── -->
+<div class="cursor-ring" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+
 <!-- ── Header (always visible) ── -->
 <header class="site-header">
+  <canvas class="waveform-canvas" aria-hidden="true"></canvas>
   <div class="band-name">Simulated Analogues</div>
   <div class="album-title">Multiplicity</div>
   <div class="album-year">2026</div>
@@ -516,6 +910,16 @@
     </button>
     <div class="more-list" id="more-list"></div>
   </section>
+
+<!-- ── Marquee ticker ── -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Multiplicity</span><span>Simulated Analogues</span><span>2026</span>
+    <span>Multiplicity</span><span>Simulated Analogues</span><span>2026</span>
+    <span>Multiplicity</span><span>Simulated Analogues</span><span>2026</span>
+    <span>Multiplicity</span><span>Simulated Analogues</span><span>2026</span>
+  </div>
+</div>
 
 <!-- ── Contact footer ── -->
 <footer class="contact-footer">
@@ -971,6 +1375,178 @@ everyone everywhere` },
     item.appendChild(body);
     accordion.appendChild(item);
   });
+
+  /* ════════════════════════════
+     Futuristic enhancements
+  ════════════════════════════ */
+  (function () {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ── Kinetic album title ── */
+    const title = document.querySelector(".album-title");
+    if (title) {
+      const txt = title.textContent;
+      title.textContent = "";
+      [...txt].forEach((ch, i) => {
+        const s = document.createElement("span");
+        s.className = "alb-letter";
+        s.style.setProperty("--i", i);
+        s.textContent = ch === " " ? "\u00A0" : ch;
+        title.appendChild(s);
+      });
+    }
+
+    /* ── Scroll-reveal via IntersectionObserver ── */
+    const revealTargets = document.querySelectorAll(
+      ".site-header, .criminals-wrap, .social-row, .about-layout, .section, .contact-footer, .marquee"
+    );
+    revealTargets.forEach(el => el.classList.add("reveal"));
+    if ("IntersectionObserver" in window && !reducedMotion) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: "0px 0px -8% 0px" });
+      revealTargets.forEach(el => io.observe(el));
+    } else {
+      revealTargets.forEach(el => el.classList.add("in"));
+    }
+
+    /* ── Waveform canvas behind the title ── */
+    const canvas = document.querySelector(".waveform-canvas");
+    if (canvas && !reducedMotion) {
+      const ctx = canvas.getContext("2d");
+      let w = 0, h = 0, t0 = performance.now(), rafId = null, visible = true;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      function resize() {
+        const r = canvas.getBoundingClientRect();
+        w = r.width; h = r.height;
+        canvas.width = Math.max(1, Math.floor(w * dpr));
+        canvas.height = Math.max(1, Math.floor(h * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      function draw(now) {
+        const t = (now - t0) / 1000;
+        ctx.clearRect(0, 0, w, h);
+
+        const lines = 3;
+        for (let L = 0; L < lines; L++) {
+          ctx.beginPath();
+          const amp = 8 + L * 4;
+          const freq = 0.012 + L * 0.004;
+          const yBase = h / 2 + (L - 1) * 14;
+          const phase = t * (0.6 + L * 0.2);
+
+          for (let x = 0; x <= w; x += 2) {
+            const y = yBase
+              + Math.sin(x * freq + phase) * amp
+              + Math.sin(x * freq * 2.3 + phase * 1.7) * amp * 0.4;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          const alpha = 0.18 - L * 0.05;
+          ctx.strokeStyle = `rgba(200, 169, 126, ${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.shadowColor = "rgba(200, 169, 126, 0.5)";
+          ctx.shadowBlur = 8;
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+        rafId = requestAnimationFrame(draw);
+      }
+
+      const headerEl = document.querySelector(".site-header");
+      const vis = new IntersectionObserver((ents) => {
+        ents.forEach(e => {
+          visible = e.isIntersecting;
+          if (visible && rafId == null) rafId = requestAnimationFrame(draw);
+          if (!visible && rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+        });
+      });
+      vis.observe(headerEl);
+      rafId = requestAnimationFrame(draw);
+    }
+
+    /* ── Tilt + magnetic glow on cards ── */
+    const canHover = window.matchMedia("(hover: hover)").matches;
+    const tiltTargets = document.querySelectorAll(".card, .about-cover");
+
+    if (canHover && !reducedMotion) {
+      tiltTargets.forEach(el => {
+        let raf = null;
+        function onMove(e) {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          const rx = (0.5 - py) * 10;
+          const ry = (px - 0.5) * 10;
+          el.style.setProperty("--mx", px * 100 + "%");
+          el.style.setProperty("--my", py * 100 + "%");
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            el.style.transform =
+              `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
+            const img = el.querySelector("img");
+            if (img && el.classList.contains("about-cover")) {
+              img.style.transform = `translate3d(${(px - 0.5) * -12}px, ${(py - 0.5) * -12}px, 0) scale(1.04)`;
+            }
+          });
+        }
+        function onLeave() {
+          el.style.transform = "";
+          const img = el.querySelector("img");
+          if (img) img.style.transform = "";
+        }
+        el.addEventListener("mousemove", onMove);
+        el.addEventListener("mouseleave", onLeave);
+      });
+    }
+
+    /* ── Video hover: speed scrub ── */
+    document.querySelectorAll(".criminal-item video").forEach(v => {
+      v.addEventListener("mouseenter", () => { v.playbackRate = 1.6; });
+      v.addEventListener("mouseleave", () => { v.playbackRate = 1.0; });
+    });
+
+    /* ── Custom cursor ── */
+    const dot  = document.querySelector(".cursor-dot");
+    const ring = document.querySelector(".cursor-ring");
+    if (canHover && dot && ring && !reducedMotion && window.innerWidth > 768) {
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let rx = mx, ry = my;
+      document.body.classList.add("cursor-ready");
+      window.addEventListener("mousemove", (e) => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+      });
+      (function loop() {
+        rx += (mx - rx) * 0.18;
+        ry += (my - ry) * 0.18;
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
+        requestAnimationFrame(loop);
+      })();
+      const hoverables = "a, button, .card, .lyric-header, .social-link, video, .about-cover, .more-toggle";
+      document.addEventListener("mouseover", (e) => {
+        if (e.target.closest(hoverables)) ring.classList.add("is-hover");
+      });
+      document.addEventListener("mouseout", (e) => {
+        if (e.target.closest(hoverables)) ring.classList.remove("is-hover");
+      });
+      window.addEventListener("mouseleave", () => {
+        dot.style.opacity = ring.style.opacity = "0";
+      });
+      window.addEventListener("mouseenter", () => {
+        dot.style.opacity = ring.style.opacity = "";
+      });
+    }
+  })();
 </script>
 
 </body>
