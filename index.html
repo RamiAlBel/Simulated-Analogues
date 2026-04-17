@@ -474,11 +474,10 @@
       z-index: -2;
       pointer-events: none;
       background:
-        radial-gradient(ellipse 60vw 50vh at 30% 20%, rgba(var(--accent-rgb), 0.14), transparent 60%),
-        radial-gradient(ellipse 50vw 45vh at 75% 80%, rgba(var(--accent-rgb), 0.08), transparent 65%),
-        radial-gradient(ellipse 45vw 40vh at 50% 50%, rgba(120, 140, 200, 0.05), transparent 70%);
+        radial-gradient(ellipse 55vw 45vh at 70% 85%, rgba(var(--accent-rgb), 0.06), transparent 70%),
+        radial-gradient(ellipse 45vw 40vh at 20% 70%, rgba(120, 140, 200, 0.04), transparent 75%);
       animation: aura-drift 22s ease-in-out infinite alternate;
-      filter: blur(20px);
+      filter: blur(24px);
     }
 
     @keyframes aura-drift {
@@ -532,7 +531,7 @@
     .site-header > *:not(.waveform-canvas) { position: relative; z-index: 1; }
 
     /* ── Kinetic album title ── */
-    .album-title { position: relative; display: inline-block; cursor: default; }
+    .album-title { position: relative; display: block; cursor: default; }
 
     .alb-letter {
       display: inline-block;
@@ -559,22 +558,7 @@
     .album-title:hover .alb-letter:nth-child(odd)  { transform: translateY(-2px); }
     .album-title:hover .alb-letter:nth-child(even) { transform: translateY(2px); }
 
-    .band-name {
-      position: relative;
-      display: inline-block;
-      padding: 2px 10px;
-    }
-    .band-name::before, .band-name::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      width: 22px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent));
-      opacity: 0.6;
-    }
-    .band-name::before { right: 100%; }
-    .band-name::after  { left: 100%; transform: scaleX(-1); }
+    .band-name { position: relative; }
 
     /* ── Scroll-reveal ── */
     .reveal {
@@ -640,29 +624,13 @@
 
     /* ── Video treatment ── */
     .criminal-item video {
-      filter: contrast(1.06) saturate(0.92) sepia(0.08) brightness(0.98);
-      transition: filter 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+      filter: contrast(1.04) saturate(0.98) brightness(0.98);
+      transition: filter 0.4s ease, transform 0.4s ease;
     }
     .criminal-item { position: relative; }
-    .criminal-item::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: calc(100% - 28px);
-      border-radius: 10px;
-      pointer-events: none;
-      box-shadow: 0 0 0 1px transparent inset, 0 0 0 rgba(var(--accent-rgb), 0);
-      transition: box-shadow 0.4s ease;
-      z-index: 1;
-    }
     .criminal-item:hover video {
-      filter: contrast(1.08) saturate(1.05) sepia(0) brightness(1);
-      transform: translateZ(0) scale(1.015);
-    }
-    .criminal-item:hover::before {
-      box-shadow:
-        0 0 0 1px rgba(var(--accent-rgb), 0.5) inset,
-        0 0 30px rgba(var(--accent-rgb), 0.25);
+      filter: contrast(1.06) saturate(1.04) brightness(1);
+      transform: translateZ(0) scale(1.012);
     }
 
     /* ── Social links glow ── */
