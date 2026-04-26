@@ -632,12 +632,13 @@
     background:var(--paper);color:var(--ink);
     border:1px solid var(--ink);
     font-family:'Fraunces',serif;
-    padding:8px 10px;
-    display:flex;justify-content:space-between;align-items:center;
-    font-size:0.95rem;
+    padding:10px 14px;
     z-index:2;pointer-events:none;
   }
-  .reel-foot em{font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent)}
+  .reel-foot em{
+    font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent);
+    font-size:1.35rem;letter-spacing:-0.01em;
+  }
 
   .reels-cta{
     display:flex;justify-content:center;margin-top:50px;
@@ -1000,37 +1001,15 @@
   </div>
 </section>
 
-<!-- FOLLOW -->
-<section id="contact" class="follow">
-  <div class="lab">// Watch the signal</div>
-  <h3>Recent <em>releases.</em></h3>
-  <div class="row">
-    <a href="https://youtube.com/shorts/I8BoMlkE8kM" target="_blank" rel="noopener"><span class="dot"></span>8B4B</a>
-    <a href="https://youtube.com/shorts/Da_H41l1nf0" target="_blank" rel="noopener"><span class="dot"></span>Snowy Samba</a>
-    <a href="https://youtube.com/shorts/Xx-pLLuIbq8" target="_blank" rel="noopener"><span class="dot"></span>Snowy Samba (alt)</a>
-    <a href="https://youtu.be/hoD6YlDUZ4g" target="_blank" rel="noopener"><span class="dot"></span>Once in a While</a>
-    <a href="https://youtu.be/BWl47Rjmshc" target="_blank" rel="noopener"><span class="dot"></span>Chicago</a>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer>
-  <div class="foot-grid">
+  <div class="foot-grid" style="grid-template-columns:1.4fr 1fr">
     <div class="lockup">simulated <em>analogues.</em></div>
     <div class="foot-col">
-      <h4>Booking & Press</h4>
+      <h4>Contact</h4>
       <a href="mailto:simulatedanalogues@gmail.com">simulatedanalogues@gmail.com</a>
-      <p style="color:var(--muted)">For shows in DK / SE / DE preferred.</p>
+      <p style="color:var(--muted)">Copenhagen, DK</p>
     </div>
-    <div class="foot-col">
-      <h4>Studio</h4>
-      <p>A kitchen in Vesterbro</p>
-      <p>Copenhagen, DK</p>
-    </div>
-  </div>
-  <div class="foot-rule">
-    <div>© 2026 Simulated Analogues. All rights reserved.</div>
-    <div>Multiplicity · SA-001 · Pressed with care.</div>
   </div>
 </footer>
 
@@ -1323,7 +1302,7 @@ everyone everywhere`},
         <div class="gradient"></div>
         <div class="play" aria-hidden="true"></div>
       </a>
-      <div class="reel-foot"><span>${it.label}</span><em>${it.italic}</em></div>`;
+      <div class="reel-foot"><em>${it.italic}</em></div>`;
     grid.appendChild(el);
   });
 })();
