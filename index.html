@@ -365,6 +365,7 @@
   .duo .card:nth-child(2){transform:rotate(1.5deg)}
   .duo .card:hover{transform:rotate(0) scale(1.02)}
   .duo .card svg{width:100%;height:100%;display:block}
+  .duo .card video{width:100%;height:100%;object-fit:cover;display:block}
   .duo .card .label{
     position:absolute;left:0;right:0;bottom:0;
     padding:10px 12px;
@@ -902,55 +903,17 @@
 
   <div class="about">
     <div class="about-lede">
-      <span class="drop">W</span>e are <em>Simulated Analogues</em> a music band based in Copenhagen.<br/><br/><em>Multiplicity</em> is our first record: eleven tracks about small infinities between people.
+      <span class="drop">W</span>e are <em>Simulated Analogues</em> a music band based in Copenhagen.
 
       <div class="duo">
         <div class="card">
           <div class="tape t1"></div>
-          <!-- abstract portrait SVG -->
-          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect width="300" height="400" fill="#e6dcc4"/>
-            <g stroke="#0d0d10" stroke-width="0.7" fill="none" opacity="0.7">
-              <ellipse cx="150" cy="170" rx="80" ry="100"/>
-              <ellipse cx="150" cy="170" rx="70" ry="90"/>
-              <ellipse cx="150" cy="170" rx="60" ry="80"/>
-              <ellipse cx="150" cy="170" rx="50" ry="70"/>
-              <ellipse cx="150" cy="170" rx="40" ry="60"/>
-              <ellipse cx="150" cy="170" rx="30" ry="50"/>
-              <ellipse cx="150" cy="170" rx="20" ry="40"/>
-            </g>
-            <g stroke="#c8462b" stroke-width="0.9" fill="none" opacity="0.65">
-              <path d="M70,300 Q150,260 230,300"/>
-              <path d="M60,320 Q150,280 240,320"/>
-              <path d="M50,340 Q150,300 250,340"/>
-              <path d="M40,360 Q150,320 260,360"/>
-            </g>
-            <circle cx="130" cy="160" r="3" fill="#0d0d10"/>
-            <circle cx="170" cy="160" r="3" fill="#0d0d10"/>
-            <path d="M130,200 Q150,210 170,200" stroke="#0d0d10" stroke-width="1" fill="none"/>
-          </svg>
+          <video src="video1.mp4" autoplay loop muted playsinline></video>
           <div class="label"><em>Django Ramires</em><span>keys · bass · voice</span></div>
         </div>
         <div class="card">
           <div class="tape t2"></div>
-          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect width="300" height="400" fill="#e6dcc4"/>
-            <g stroke="#0d0d10" stroke-width="0.7" fill="none" opacity="0.7">
-              <path d="M40,200 Q150,80 260,200 Q150,320 40,200"/>
-              <path d="M55,200 Q150,100 245,200 Q150,300 55,200"/>
-              <path d="M70,200 Q150,120 230,200 Q150,280 70,200"/>
-              <path d="M85,200 Q150,140 215,200 Q150,260 85,200"/>
-              <path d="M100,200 Q150,160 200,200 Q150,240 100,200"/>
-            </g>
-            <g stroke="#e88aa6" stroke-width="0.9" fill="none" opacity="0.7">
-              <circle cx="150" cy="200" r="60"/>
-              <circle cx="150" cy="200" r="48"/>
-              <circle cx="150" cy="200" r="36"/>
-            </g>
-            <circle cx="130" cy="190" r="3" fill="#0d0d10"/>
-            <circle cx="170" cy="190" r="3" fill="#0d0d10"/>
-            <path d="M125,225 Q150,235 175,225" stroke="#0d0d10" stroke-width="1" fill="none"/>
-          </svg>
+          <video src="video2.mp4" autoplay loop muted playsinline></video>
           <div class="label"><em>Tuhtan'cmon</em><span>guitar · drums · vocals · jaw harp</span></div>
         </div>
       </div>
@@ -960,8 +923,6 @@
       <div class="row"><strong>when?</strong><span>2024 — Now</span></div>
       <div class="row"><strong>who?</strong><span>Simulated Analogues</span></div>
       <div class="row"><strong>instruments</strong><span>Guitar, Bass, Synths, Voice</span></div>
-      <div class="row"><strong>recorded</strong><span>Copenhagen · Thessaloniki</span></div>
-      <div class="row"><strong>mastering</strong><span><a href="https://www.instagram.com/volt_motion_productions/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Volt Motion Productions</a></span></div>
     </div>
   </div>
 </section>
@@ -970,7 +931,7 @@
 <section id="album">
   <div class="section-hd">
     <div class="num">02</div>
-    <h2> Our first album:<em>Multiplicity</em></h2>
+    <h2><em>Multiplicity</em></h2>
     <div class="meta">// 11 tracks · 43:36 · 2026</div>
   </div>
 
@@ -984,8 +945,8 @@
       <span class="glyph" style="left:-26px;bottom:-22px;font-size:54px;transform:rotate(-12deg)">*</span>
     </div>
     <div class="album-info">
-      <h3>A record about <em>multiplicity</em> — the many small selves we carry within us.</h3>
-      <p>Eleven songs.<br/>Out everywhere <em>end of April 2026</em>.</p>
+      <h3><em>Multiplicity</em> is our first record — eleven tracks about small infinities between people, the many small selves we carry within us.</h3>
+      <p>Out everywhere <em>end of April 2026</em>.</p>
       <a href="#listen" class="pill-cta">Pre-save the album <span class="arr">→</span></a>
 
       <div class="album-spec">
@@ -995,6 +956,7 @@
         <div><span>Released</span> Apr 2026</div>
         <div><span>Cat. №</span> SA-001</div>
         <div><span>Pressing</span> Cream wax</div>
+        <div><span>Mastering</span> <a href="https://www.instagram.com/volt_motion_productions/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Volt Motion Productions</a></div>
       </div>
     </div>
   </div>
