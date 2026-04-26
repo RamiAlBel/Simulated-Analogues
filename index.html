@@ -363,6 +363,8 @@
   }
   .duo .card:nth-child(1){transform:rotate(-1.5deg)}
   .duo .card:nth-child(2){transform:rotate(1.5deg)}
+  .duo .card:nth-child(3){transform:rotate(1deg)}
+  .duo .card:nth-child(4){transform:rotate(-1deg)}
   .duo .card:hover{transform:rotate(0) scale(1.02)}
   .duo .card svg{width:100%;height:100%;display:block}
   .duo .card video{width:100%;height:100%;object-fit:cover;display:block}
@@ -908,13 +910,60 @@
       <div class="duo">
         <div class="card">
           <div class="tape t1"></div>
-          <video src="video1.mp4" autoplay loop muted playsinline></video>
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="300" height="400" fill="#e6dcc4"/>
+            <g stroke="#0d0d10" stroke-width="0.7" fill="none" opacity="0.7">
+              <ellipse cx="150" cy="170" rx="80" ry="100"/>
+              <ellipse cx="150" cy="170" rx="70" ry="90"/>
+              <ellipse cx="150" cy="170" rx="60" ry="80"/>
+              <ellipse cx="150" cy="170" rx="50" ry="70"/>
+              <ellipse cx="150" cy="170" rx="40" ry="60"/>
+              <ellipse cx="150" cy="170" rx="30" ry="50"/>
+              <ellipse cx="150" cy="170" rx="20" ry="40"/>
+            </g>
+            <g stroke="#c8462b" stroke-width="0.9" fill="none" opacity="0.65">
+              <path d="M70,300 Q150,260 230,300"/>
+              <path d="M60,320 Q150,280 240,320"/>
+              <path d="M50,340 Q150,300 250,340"/>
+              <path d="M40,360 Q150,320 260,360"/>
+            </g>
+            <circle cx="130" cy="160" r="3" fill="#0d0d10"/>
+            <circle cx="170" cy="160" r="3" fill="#0d0d10"/>
+            <path d="M130,200 Q150,210 170,200" stroke="#0d0d10" stroke-width="1" fill="none"/>
+          </svg>
           <div class="label"><em>Django Ramires</em><span>keys · bass · voice</span></div>
+        </div>
+        <div class="card">
+          <div class="tape t1"></div>
+          <video src="video1.mp4" autoplay loop muted playsinline></video>
+          <div class="label"><em>Django Ramires</em><span></span></div>
+        </div>
+        <div class="card">
+          <div class="tape t2"></div>
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="300" height="400" fill="#e6dcc4"/>
+            <g stroke="#0d0d10" stroke-width="0.7" fill="none" opacity="0.7">
+              <path d="M40,200 Q150,80 260,200 Q150,320 40,200"/>
+              <path d="M55,200 Q150,100 245,200 Q150,300 55,200"/>
+              <path d="M70,200 Q150,120 230,200 Q150,280 70,200"/>
+              <path d="M85,200 Q150,140 215,200 Q150,260 85,200"/>
+              <path d="M100,200 Q150,160 200,200 Q150,240 100,200"/>
+            </g>
+            <g stroke="#e88aa6" stroke-width="0.9" fill="none" opacity="0.7">
+              <circle cx="150" cy="200" r="60"/>
+              <circle cx="150" cy="200" r="48"/>
+              <circle cx="150" cy="200" r="36"/>
+            </g>
+            <circle cx="130" cy="190" r="3" fill="#0d0d10"/>
+            <circle cx="170" cy="190" r="3" fill="#0d0d10"/>
+            <path d="M125,225 Q150,235 175,225" stroke="#0d0d10" stroke-width="1" fill="none"/>
+          </svg>
+          <div class="label"><em>Tuhtan'cmon</em><span>guitar · drums · vocals · jaw harp</span></div>
         </div>
         <div class="card">
           <div class="tape t2"></div>
           <video src="video2.mp4" autoplay loop muted playsinline></video>
-          <div class="label"><em>Tuhtan'cmon</em><span>guitar · drums · vocals · jaw harp</span></div>
+          <div class="label"><em>Tuhtan'cmon</em><span></span></div>
         </div>
       </div>
     </div>
