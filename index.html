@@ -168,19 +168,28 @@
     transform:translateY(0.04em);
   }
 
-  /* Topographic SVG behind title */
-  .topo{
+  /* Harmonic rose grid behind title */
+  .rose-grid{
     position:absolute;
     inset:0;
-    width:100%; height:100%;
+    width:100%;height:100%;
     z-index:1;
-    overflow:visible;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    grid-template-rows:repeat(5,1fr);
+    overflow:hidden;
   }
-  .topo path{ fill:none; stroke:var(--ink); stroke-width:0.7; opacity:0.75; }
-  .topo .pink{ stroke:var(--pink); opacity:0.65; }
-  .topo .accent{ stroke:var(--accent); opacity:0.6; }
-  html[data-mode="ink"] .topo path{ stroke:var(--ink-soft); opacity:0.55; }
-  html[data-mode="ink"] .topo .pink{ stroke:var(--pink); opacity:0.7; }
+  .rose-cell{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .rose-cell canvas{
+    display:block;
+    opacity:0.78;
+  }
+  html[data-mode="ink"] .rose-cell canvas{ opacity:0.62; }
 
   /* circular stamp */
   .stamp-circle{
@@ -850,8 +859,8 @@
   </div>
 
   <div class="hero-stage">
-    <!-- Topographic backdrop -->
-    <svg class="topo" id="topo-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+    <!-- Harmonic rose family grid -->
+    <div class="rose-grid" id="rose-grid" aria-hidden="true"></div>
 
     <!-- circular stamp removed -->
 
@@ -1030,95 +1039,131 @@ window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
 </script>
 
 <script>
-/* ── Topographic SVG (seeded, organic, art-like) ── */
+/* ── Harmonic Rose Family — r(θ)=sin(k·θ), k=b/a, scroll-animated 5×5 grid ── */
 (function(){
-  const svg = document.getElementById('topo-svg');
-  if(!svg) return;
-  const W=1200, H=700;
-  // Seed pseudo-random
-  function rng(seed){ return ()=>{ seed = (seed*9301+49297) % 233280; return seed/233280; }; }
-  const r = rng(7);
+  const container = document.getElementById('rose-grid');
+  if(!container) return;
 
-  // Two attractors
-  function field(x,y){
-    const c1 = { x: 380, y: 340, s: 1.0 };
-    const c2 = { x: 820, y: 360, s: 0.85 };
-    const d1 = Math.hypot(x-c1.x, y-c1.y);
-    const d2 = Math.hypot(x-c2.x, y-c2.y);
-    return Math.sin(d1*0.018 + Math.cos(d2*0.012)*0.6) * c1.s
-         + Math.cos(d2*0.014 + Math.sin(d1*0.010)*0.7) * c2.s;
-  }
+  const N = 5;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-  // Generate iso-curves (like topographic contours)
-  const levels = [];
-  for(let i=-10;i<=10;i++) levels.push(i*0.18);
+  function gcd(a,b){ while(b){const t=b;b=a%b;a=t;} return a; }
 
-  // Marching squares-ish on a grid → just sample paths along x for each level (cheap & stylized)
-  const step = 6;
-  const cols = Math.floor(W/step);
-  const rows = Math.floor(H/step);
-  const grid = new Array(cols*rows);
-  for(let j=0;j<rows;j++){
-    for(let i=0;i<cols;i++){
-      grid[j*cols+i] = field(i*step, j*step);
+  /* Closing period for r=sin(k·θ), k=p/q reduced: T = 2π·q */
+  /* Color: 5 hue families by row (a), graded across columns (b) */
+  const HUE_RANGES = [
+    [  5,  35],   /* a=1 — red → orange        */
+    [ 50, 100],   /* a=2 — yellow → lime        */
+    [160, 210],   /* a=3 — teal → sky           */
+    [240, 285],   /* a=4 — blue → violet        */
+    [310, 355],   /* a=5 — magenta → rose       */
+  ];
+
+  const cells = [];
+
+  /* Build grid: b on x-axis (cols), a on y-axis (rows) */
+  for(let ai=0; ai<N; ai++){
+    const a = ai+1;
+    for(let bi=0; bi<N; bi++){
+      const b = bi+1;
+      const g  = gcd(a,b);
+      const p  = b/g;          /* reduced numerator   */
+      const q  = a/g;          /* reduced denominator */
+      const k  = p/q;          /* = b/a               */
+      const T  = 2*Math.PI*q;  /* closing period      */
+
+      const [h0,h1] = HUE_RANGES[ai];
+      const hue = h0 + (bi/(N-1))*(h1-h0);
+      /* Saturation/lightness vary gently across the grid */
+      const sat = 60 + ((ai*3 + bi*2) % 10);
+      const lig = 44 + (bi*2 % 10);
+
+      const cellEl = document.createElement('div');
+      cellEl.className = 'rose-cell';
+      const canvas = document.createElement('canvas');
+      cellEl.appendChild(canvas);
+      container.appendChild(cellEl);
+
+      cells.push({ canvas, cellEl, k, T, hue, sat, lig });
     }
   }
 
-  // For each level, walk left→right rows and connect points crossing the level
-  function pathFor(level, classn){
-    const pts = [];
-    for(let j=2;j<rows-2;j++){
-      let segs = [];
-      for(let i=0;i<cols-1;i++){
-        const a = grid[j*cols+i];
-        const b = grid[j*cols+i+1];
-        if((a-level)*(b-level) < 0){
-          const t = (level - a)/(b - a);
-          segs.push((i+t)*step);
-        }
+  function sizeAll(){
+    cells.forEach(({canvas, cellEl})=>{
+      const r = cellEl.getBoundingClientRect();
+      const w = Math.round(r.width  * DPR);
+      const h = Math.round(r.height * DPR);
+      if(canvas.width!==w || canvas.height!==h){
+        canvas.width  = w;
+        canvas.height = h;
+        canvas.style.width  = r.width  + 'px';
+        canvas.style.height = r.height + 'px';
       }
-      // Pair segments → horizontal segment endpoints
-      for(let k=0;k<segs.length-1;k+=2){
-        pts.push({x:segs[k], y:j*step, nx:segs[k+1], ny:j*step});
-      }
-    }
-    if(!pts.length) return '';
-    // Build path with small wobble for organic feel
-    let d = '';
-    pts.forEach(p=>{
-      const wob = (r()-0.5)*1.5;
-      d += `M${p.x.toFixed(1)},${(p.y+wob).toFixed(1)} L${p.nx.toFixed(1)},${(p.ny+wob).toFixed(1)} `;
     });
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', d);
-    if(classn) path.setAttribute('class', classn);
-    return path;
   }
 
-  levels.forEach((lv,idx)=>{
-    let cl = '';
-    if(idx % 7 === 0) cl='accent';
-    else if(idx % 5 === 0) cl='pink';
-    const p = pathFor(lv, cl);
-    if(p) svg.appendChild(p);
+  function drawCell(cell, progress){
+    const {canvas, k, T, hue, sat, lig} = cell;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const tEnd = progress * T;
+    if(tEnd < 0.002) return;
+
+    const isDark = document.documentElement.dataset.mode === 'ink';
+    const lightness = isDark ? lig + 22 : lig;
+
+    const steps = Math.min(2400, Math.max(200, Math.ceil(tEnd * 55)));
+    const R  = Math.min(W,H) * 0.43;
+    const cx = W/2, cy = H/2;
+
+    ctx.beginPath();
+    for(let i=0; i<=steps; i++){
+      const theta = (i/steps)*tEnd;
+      const r = Math.sin(k*theta)*R;
+      const x = cx + r*Math.cos(theta);
+      const y = cy + r*Math.sin(theta);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = `hsl(${hue.toFixed(1)},${sat}%,${lightness}%)`;
+    ctx.lineWidth   = Math.max(0.8, Math.min(W,H)*0.012 / DPR);
+    ctx.globalAlpha = 0.82;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  let lastProgress = -1;
+
+  function render(){
+    const hero = document.querySelector('.hero');
+    if(!hero) return;
+    const progress = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight * 0.88)));
+    if(Math.abs(progress - lastProgress) > 0.0005){
+      lastProgress = progress;
+      sizeAll();
+      cells.forEach(c => drawCell(c, progress));
+    }
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){ ticking=true; requestAnimationFrame(()=>{ render(); ticking=false; }); }
+  }, {passive:true});
+
+  /* Redraw on theme toggle without needing a scroll event */
+  const observer = new MutationObserver(()=>{
+    if(lastProgress >= 0) cells.forEach(c => drawCell(c, lastProgress));
   });
+  observer.observe(document.documentElement, {attributes:true, attributeFilter:['data-mode']});
 
-  // Draw a few sweeping concentric arcs (rose echo)
-  const ns = 'http://www.w3.org/2000/svg';
-  for(let i=0;i<30;i++){
-    const c = document.createElementNS(ns,'ellipse');
-    const cx = 600 + Math.sin(i*0.4)*80;
-    const cy = 350 + Math.cos(i*0.3)*40;
-    c.setAttribute('cx', cx);
-    c.setAttribute('cy', cy);
-    c.setAttribute('rx', 80 + i*16);
-    c.setAttribute('ry', 30 + i*8);
-    c.setAttribute('fill','none');
-    c.setAttribute('stroke','currentColor');
-    c.setAttribute('transform', `rotate(${i*4} ${cx} ${cy})`);
-    c.setAttribute('style', `color:var(--ink);opacity:${Math.max(0,0.35 - i*0.008)}`);
-    svg.appendChild(c);
-  }
+  const ro = new ResizeObserver(()=>{
+    sizeAll();
+    if(lastProgress >= 0) cells.forEach(c => drawCell(c, lastProgress));
+  });
+  ro.observe(container);
+
+  requestAnimationFrame(()=>{ sizeAll(); cells.forEach(c=>drawCell(c,0)); });
 })();
 
 /* ── Marquee ── */
