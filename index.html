@@ -208,17 +208,6 @@
   }
   @keyframes slow-spin{to{transform:rotate(360deg)}}
 
-  /* asterisk burst */
-  .burst{
-    position:absolute;
-    left:5%; top:18%;
-    width:64px;height:64px;
-    z-index:4;
-    color:var(--accent);
-    animation:slow-spin 22s linear infinite reverse;
-  }
-  .burst svg{width:100%;height:100%}
-
   /* hero footer band */
   .hero-foot{
     display:grid;
@@ -863,20 +852,6 @@
     <div class="rose-grid" id="rose-grid" aria-hidden="true"></div>
 
     <!-- circular stamp removed -->
-
-    <!-- asterisk burst -->
-    <div class="burst" aria-hidden="true">
-      <svg viewBox="0 0 60 60">
-        <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
-          <line x1="30" y1="6"  x2="30" y2="54"/>
-          <line x1="6"  y1="30" x2="54" y2="30"/>
-          <line x1="12" y1="12" x2="48" y2="48"/>
-          <line x1="48" y1="12" x2="12" y2="48"/>
-          <line x1="20" y1="9"  x2="40" y2="51"/>
-          <line x1="40" y1="9"  x2="20" y2="51"/>
-        </g>
-      </svg>
-    </div>
 
     <h1 class="hero-title" id="hero-title">
       <span class="word">mult<span class="iy">i</span>plic<span class="iy">i</span>ty</span>
