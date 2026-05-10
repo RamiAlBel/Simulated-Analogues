@@ -974,12 +974,16 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="foot-grid" style="grid-template-columns:1.4fr 1fr">
+  <div class="foot-grid">
     <div class="lockup">Simulated <em>Analogues</em></div>
     <div class="foot-col">
       <h4>Contact</h4>
       <a href="mailto:simulatedanalogues@gmail.com">simulatedanalogues@gmail.com</a>
       <p style="color:var(--muted)">Copenhagen, DK</p>
+    </div>
+    <div class="foot-col">
+      <h4>Links</h4>
+      <a href="https://linktr.ee/simulatedanalogues" target="_blank" rel="noopener noreferrer" data-ext="1">linktr.ee/simulatedanalogues</a>
     </div>
   </div>
 </footer>
@@ -1348,6 +1352,18 @@ everyone everywhere`},
     a.dataset.platform = p.n.toLowerCase().replace(/\s+/g,'-');
     a.innerHTML = `<span class="pi">${p.i}.</span><img src="${p.img}" alt="${p.n}"/><span class="pn">${p.n}</span>`;
     grid.appendChild(a);
+  });
+})();
+
+/* ── External link fallback (sandboxed-iframe safe) ── */
+(function(){
+  document.querySelectorAll('a[data-ext="1"]').forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const url = a.href;
+      const w = window.open(url, '_blank', 'noopener,noreferrer');
+      if(!w) window.top.location.href = url;
+    });
   });
 })();
 
