@@ -1333,8 +1333,18 @@ everyone everywhere`},
   featured.forEach(p=>{
     const a = document.createElement('a');
     a.className='pcard';
-    a.href = p.url || '#';
-    if(p.url){ a.target = '_blank'; a.rel = 'noopener'; }
+    if(p.url){
+      a.href = p.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const w = window.open(p.url, '_blank', 'noopener,noreferrer');
+        if(!w) window.top.location.href = p.url;
+      });
+    } else {
+      a.href = '#';
+    }
     a.dataset.platform = p.n.toLowerCase().replace(/\s+/g,'-');
     a.innerHTML = `<span class="pi">${p.i}.</span><img src="${p.img}" alt="${p.n}"/><span class="pn">${p.n}</span>`;
     grid.appendChild(a);
