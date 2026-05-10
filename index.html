@@ -1320,9 +1320,9 @@ everyone everywhere`},
   const grid = document.getElementById('platforms');
   if(!grid) return;
   const featured = [
-    { n:"Spotify",       img:"spotify.png",      i:"i" },
+    { n:"Spotify",       img:"spotify.png",      i:"i",    url:"https://open.spotify.com/album/7sGWOQ5B5B35gJsezjsR4g" },
     { n:"Apple Music",   img:"apple_music.png",  i:"ii" },
-    { n:"YouTube Music", img:"youtube.png",      i:"iii" },
+    { n:"YouTube Music", img:"youtube.png",      i:"iii",  url:"https://www.youtube.com/watch?v=FTuYTehNQJQ&list=OLAK5uy_meTV0qohTJ_auPtF5lv4UMeCwjThxDXj0" },
     { n:"Bandcamp",      img:"bandcamp.png",     i:"iv" },
     { n:"SoundCloud",    img:"soundcloud.png",   i:"v" },
     { n:"Tidal",         img:"tidal.png",        i:"vi" },
@@ -1333,7 +1333,8 @@ everyone everywhere`},
   featured.forEach(p=>{
     const a = document.createElement('a');
     a.className='pcard';
-    a.href='#';
+    a.href = p.url || '#';
+    if(p.url){ a.target = '_blank'; a.rel = 'noopener'; }
     a.dataset.platform = p.n.toLowerCase().replace(/\s+/g,'-');
     a.innerHTML = `<span class="pi">${p.i}.</span><img src="${p.img}" alt="${p.n}"/><span class="pn">${p.n}</span>`;
     grid.appendChild(a);
