@@ -1181,18 +1181,6 @@ window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
 
   function gcd(a,b){ while(b){const t=b;b=a%b;a=t;} return a; }
 
-  /* deterministic RNG (mulberry32) */
-  function makeRng(seed){
-    let s = seed >>> 0;
-    return function(){
-      s = (s + 0x6D2B79F5) >>> 0;
-      let t = s;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
   /* hue families per row (echo the hero rose grid palette) */
   const HUE_FAMILIES = [
     [  5,  35],  /* red → orange  */
@@ -1283,123 +1271,86 @@ window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
       }
     },
 
-    /* Sierpinski triangle by chaos game (seeded for determinism) */
-    sierpinski: {
+    /* Koch snowflake — recursion depth + zoom + drift grow with scroll */
+    koch: {
       params: function(r, c, R, C){
         return {
-          rotation: ((r * 47) + (c * 19)) * Math.PI / 180,
-          seed: 1013 + r * 71 + c * 17,
+          baseRotation: ((r * 31) + (c * 17)) * Math.PI / 180,
+          inverted: ((r + c) % 2) === 1,  /* alternate snowflake / antisnowflake */
           hue: cellHue(r, c, R, C),
-          sat: 60 + ((r*4 + c*3) % 10),
+          sat: 60 + ((r*3 + c*2) % 10),
           lig: 45 + ((c*2) % 8),
-          maxPoints: 1400,
+          maxDepth: 5,
         };
       },
       draw: function(ctx, W, H, p, progress, isDark){
-        const N = Math.floor(progress * p.maxPoints);
-        if (N < 1) return;
+        if (progress < 0.001) return;
+
+        /* Stepwise depth growth (0 → 1 → ... → maxDepth across the scroll). */
+        const steps = p.maxDepth + 1;
+        const depth = Math.min(p.maxDepth, Math.floor(progress * steps));
+
+        /* Smooth zoom + slow rotation drift — together they read as "zooming in". */
+        const zoom = 1 + progress * 0.7;
+        const angle = p.baseRotation + progress * 0.35;
+
         const cx = W / 2, cy = H / 2;
-        const R = Math.min(W, H) * 0.46;
+        const baseR = Math.min(W, H) * 0.4 * zoom;
+
         const verts = [];
         for (let i = 0; i < 3; i++){
-          const a = p.rotation + (i / 3) * 2 * Math.PI - Math.PI / 2;
-          verts.push({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) });
+          const a = angle - Math.PI / 2 + (i * 2 * Math.PI / 3);
+          verts.push({ x: cx + baseR * Math.cos(a), y: cy + baseR * Math.sin(a) });
         }
-        const rng = makeRng(p.seed);
-        let x = cx, y = cy;
-        for (let i = 0; i < 8; i++){
-          const v = verts[Math.floor(rng() * 3)];
-          x = (x + v.x) / 2;
-          y = (y + v.y) / 2;
-        }
-        const dot = Math.max(0.8, Math.min(W, H) * 0.007 / DPR);
-        const lig = isDark ? p.lig + 22 : p.lig;
-        ctx.fillStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
-        ctx.globalAlpha = 0.78;
-        for (let i = 0; i < N; i++){
-          const v = verts[Math.floor(rng() * 3)];
-          x = (x + v.x) / 2;
-          y = (y + v.y) / 2;
-          ctx.fillRect(x - dot / 2, y - dot / 2, dot, dot);
-        }
-        ctx.globalAlpha = 1;
-      }
-    },
 
-    /* Phyllotaxis: n-th seed at angle n·θ, radius ∝ √n */
-    phyllotaxis: {
-      params: function(r, c, R, C){
-        const offset = (c - (C - 1) / 2) * 0.35;            /* perturb golden angle */
-        const angle = (137.508 + offset) * Math.PI / 180;
-        return {
-          angle,
-          cscale: 0.055 + (r % R) * 0.004,
-          hue: cellHue(r, c, R, C),
-          sat: 60 + ((r + c*2) % 10),
-          lig: 45 + ((c*2) % 8),
-          maxN: 600,
-        };
-      },
-      draw: function(ctx, W, H, p, progress, isDark){
-        const N = Math.floor(progress * p.maxN);
-        if (N < 1) return;
-        const cx = W / 2, cy = H / 2;
-        const cscale = Math.min(W, H) * p.cscale;
-        const Rmax = Math.min(W, H) * 0.48;
-        const dot = Math.max(0.9, Math.min(W, H) * 0.014 / DPR);
-        const lig = isDark ? p.lig + 22 : p.lig;
-        ctx.fillStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
-        ctx.globalAlpha = 0.8;
-        for (let n = 0; n < N; n++){
-          const rr = cscale * Math.sqrt(n);
-          if (rr > Rmax) break;
-          const a = n * p.angle;
-          const x = cx + rr * Math.cos(a);
-          const y = cy + rr * Math.sin(a);
-          ctx.beginPath();
-          ctx.arc(x, y, dot, 0, 2 * Math.PI);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-      }
-    },
+        /* Visually CW triangle in y-down screen coords ⇒ peak rotated -60°
+           lies on the outside of each edge (true snowflake bumps). */
+        const sign = p.inverted ? 1 : -1;
+        const cosA = Math.cos(sign * Math.PI / 3);
+        const sinA = Math.sin(sign * Math.PI / 3);
 
-    /* Two-source ripple interference */
-    interference: {
-      params: function(r, c, R, C){
-        const sep = 0.16 + (c / Math.max(1, C - 1)) * 0.34;       /* 0.16..0.50 */
-        const wavelength = 0.07 + (r / Math.max(1, R - 1)) * 0.06;/* 0.07..0.13 */
-        return {
-          sep, wavelength,
-          hue: cellHue(r, c, R, C),
-          sat: 60 + ((r*2 + c) % 10),
-          lig: 45 + ((c*2) % 8),
-          maxRings: 10,
-        };
-      },
-      draw: function(ctx, W, H, p, progress, isDark){
-        if (progress < 0.01) return;
-        const s = Math.min(W, H);
-        const cx = W / 2, cy = H / 2;
-        const dx = p.sep * s;
-        const wl = p.wavelength * s;
-        const rings = Math.ceil(progress * p.maxRings);
-        const Rmax = Math.min(W, H) * 0.7;
+        const pts = [verts[0].x, verts[0].y];
+        function recurse(d, ax, ay, bx, by){
+          if (d === 0){
+            pts.push(bx, by);
+            return;
+          }
+          const dx = bx - ax, dy = by - ay;
+          const p1x = ax + dx / 3,       p1y = ay + dy / 3;
+          const p2x = ax + 2 * dx / 3,   p2y = ay + 2 * dy / 3;
+          const ex = p2x - p1x,          ey = p2y - p1y;
+          const peakx = p1x + ex * cosA - ey * sinA;
+          const peaky = p1y + ex * sinA + ey * cosA;
+          recurse(d - 1, ax, ay, p1x, p1y);
+          recurse(d - 1, p1x, p1y, peakx, peaky);
+          recurse(d - 1, peakx, peaky, p2x, p2y);
+          recurse(d - 1, p2x, p2y, bx, by);
+        }
+        for (let i = 0; i < 3; i++){
+          const a = verts[i], b = verts[(i + 1) % 3];
+          recurse(depth, a.x, a.y, b.x, b.y);
+        }
+
+        /* Zoomed snowflake can poke outside the cell — clip cleanly. */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, W, H);
+        ctx.clip();
+
+        ctx.beginPath();
+        ctx.moveTo(pts[0], pts[1]);
+        for (let i = 2; i < pts.length; i += 2){
+          ctx.lineTo(pts[i], pts[i + 1]);
+        }
+        ctx.closePath();
+
         const lig = isDark ? p.lig + 22 : p.lig;
         ctx.strokeStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
-        ctx.lineWidth = Math.max(0.6, s * 0.006 / DPR);
-        ctx.globalAlpha = 0.55;
-        for (let src = 0; src < 2; src++){
-          const ox = cx + (src === 0 ? -dx / 2 : dx / 2);
-          for (let i = 1; i <= rings; i++){
-            const rr = i * wl;
-            if (rr > Rmax) break;
-            ctx.beginPath();
-            ctx.arc(ox, cy, rr, 0, 2 * Math.PI);
-            ctx.stroke();
-          }
-        }
+        ctx.lineWidth = Math.max(0.7, Math.min(W, H) * 0.009 / DPR);
+        ctx.globalAlpha = 0.8;
+        ctx.stroke();
         ctx.globalAlpha = 1;
+        ctx.restore();
       }
     },
   };
@@ -1477,11 +1428,11 @@ window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
   }
 
   const configs = [
-    { id: 'about',  cols: 4, rows: 3, generator: 'lissajous'    },
-    { id: 'album',  cols: 4, rows: 3, generator: 'spirograph'   },
-    { id: 'reels',  cols: 4, rows: 3, generator: 'sierpinski'   },
-    { id: 'listen', cols: 4, rows: 3, generator: 'phyllotaxis'  },
-    { id: 'tracks', cols: 4, rows: 5, generator: 'interference' },
+    { id: 'about',  cols: 4, rows: 3, generator: 'lissajous'  },
+    { id: 'album',  cols: 4, rows: 3, generator: 'spirograph' },
+    { id: 'reels',  cols: 3, rows: 2, generator: 'koch'       },
+    { id: 'listen', cols: 3, rows: 2, generator: 'koch'       },
+    { id: 'tracks', cols: 3, rows: 3, generator: 'koch'       },
   ];
 
   const states = [];
