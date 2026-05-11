@@ -140,7 +140,7 @@
   .hero-title{
     font-family:'Summer Pleasure','Fraunces',serif;
     font-weight:400;
-    font-size:clamp(5rem, 19vw, 22rem);
+    font-size:clamp(2.4rem, 14vw, 22rem);
     line-height:0.82;
     letter-spacing:-0.04em;
     text-align:center;
@@ -152,7 +152,7 @@
     position:relative;
   }
   html[data-mode="ink"] .hero-title{ mix-blend-mode:screen; }
-  .hero-title .word{display:inline-block}
+  .hero-title .word{display:inline-block;white-space:nowrap}
   .hero-title em{
     font-family:'Instrument Serif',serif;
     font-style:italic;
@@ -568,11 +568,13 @@
   .reels-grid{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
-    gap:28px;
+    gap:24px;
     margin-top:40px;
+    max-width:760px;
+    margin-left:auto;
+    margin-right:auto;
   }
-  @media (max-width:980px){.reels-grid{grid-template-columns:1fr 1fr}}
-  @media (max-width:640px){.reels-grid{grid-template-columns:1fr}}
+  @media (max-width:720px){.reels-grid{grid-template-columns:repeat(3, 1fr);gap:14px;max-width:none}}
   .reel{
     position:relative;
     aspect-ratio:9/16;
@@ -581,9 +583,9 @@
     overflow:hidden;
     transition:transform .5s cubic-bezier(.2,.9,.2,1);
   }
-  .reel:nth-child(1){transform:translateY(0) rotate(-1deg)}
-  .reel:nth-child(2){transform:translateY(28px) rotate(0.6deg)}
-  .reel:nth-child(3){transform:translateY(0) rotate(-0.4deg)}
+  .reel:nth-child(1){transform:rotate(-0.8deg)}
+  .reel:nth-child(2){transform:rotate(0.5deg)}
+  .reel:nth-child(3){transform:rotate(-0.3deg)}
   .reel:hover{transform:translateY(-6px) rotate(0)}
   .reel iframe{
     position:absolute;inset:0;width:100%;height:100%;border:0;
@@ -599,7 +601,7 @@
   .reel a.cover .art svg{width:100%;height:100%;display:block;opacity:0.85}
   .reel a.cover .play{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:74px;height:74px;border-radius:50%;
+    width:58px;height:58px;border-radius:50%;
     background:var(--paper);color:var(--ink);
     display:flex;align-items:center;justify-content:center;
     transition:transform .35s, background .35s, color .35s;
@@ -607,10 +609,10 @@
   }
   .reel a.cover .play::after{
     content:""; width:0;height:0;
-    border-left:18px solid currentColor;
-    border-top:11px solid transparent;
-    border-bottom:11px solid transparent;
-    margin-left:5px;
+    border-left:14px solid currentColor;
+    border-top:9px solid transparent;
+    border-bottom:9px solid transparent;
+    margin-left:4px;
   }
   .reel:hover a.cover .play{transform:translate(-50%,-50%) scale(1.08);background:var(--accent);color:var(--paper)}
   .reel a.cover .gradient{
@@ -626,16 +628,16 @@
     z-index:2;pointer-events:none;
   }
   .reel-foot{
-    position:absolute;left:10px;right:10px;bottom:10px;
+    position:absolute;left:8px;right:8px;bottom:8px;
     background:var(--paper);color:var(--ink);
     border:1px solid var(--ink);
     font-family:'Fraunces',serif;
-    padding:10px 14px;
+    padding:7px 11px;
     z-index:2;pointer-events:none;
   }
   .reel-foot em{
     font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent);
-    font-size:1.35rem;letter-spacing:-0.01em;
+    font-size:1.05rem;letter-spacing:-0.01em;
   }
 
   .reels-cta{
@@ -643,7 +645,7 @@
   }
 
   /* ── LISTEN ── */
-  .listen{padding:0 32px 100px}
+  .listen{padding:0 32px 100px;max-width:1080px;margin:0 auto}
   .platforms{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -654,9 +656,9 @@
   @media (max-width:880px){.platforms{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:520px){.platforms{grid-template-columns:1fr}}
   .pcard{
-    aspect-ratio:1;
+    aspect-ratio:1.5;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:14px;
+    gap:10px;
     text-decoration:none;
     color:var(--ink);
     position:relative;
@@ -673,26 +675,41 @@
     transition:transform .45s cubic-bezier(.2,.9,.2,1);
     z-index:0;
   }
-  .pcard[data-platform="spotify"]::before{ background:#c8292b; }
+  .pcard[data-platform="spotify"]::before{ background:#1db954; }
+  .pcard[data-platform="apple-music"]::before{ background:#fa233b; }
+  .pcard[data-platform="youtube-music"]::before{ background:#ff0033; }
+  .pcard[data-platform="bandcamp"]::before{ background:#1da0c3; }
+  .pcard[data-platform="soundcloud"]::before{ background:#ff5500; }
+  .pcard[data-platform="tidal"]::before{ background:#0d0d0d; }
+  .pcard[data-platform="deezer"]::before{ background:#a238ff; }
+  .pcard[data-platform="amazon-music"]::before{ background:#25d1da; }
+  .pcard[data-platform="qobuz"]::before{ background:#0070ef; }
   .pcard:hover{color:var(--paper)}
   .pcard:hover::before{transform:translateY(0)}
   .pcard > *{position:relative;z-index:1}
   .pcard img{
-    width:46px;height:46px;object-fit:contain;
+    width:32px;height:32px;object-fit:contain;
     transition:transform .4s, filter .4s;
     filter:grayscale(1) contrast(1.1);
   }
   .pcard:hover img{transform:scale(1.08) rotate(-4deg);filter:grayscale(1) brightness(0) invert(1)}
   .pcard .pn{
     font-family:'JetBrains Mono',monospace;
-    font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;
+    font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
   }
   .pcard .pi{
     position:absolute;top:8px;left:10px;
     font-family:'Instrument Serif',serif;font-style:italic;
-    font-size:1rem;color:var(--muted);
+    font-size:0.9rem;color:var(--muted);
   }
-  .pcard:hover .pi{color:var(--paper)}
+  .pcard .parr{
+    position:absolute;right:10px;bottom:8px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);
+    transition:transform .35s, color .35s;
+  }
+  .pcard:hover .pi,.pcard:hover .parr{color:var(--paper)}
+  .pcard:hover .parr{transform:translateX(4px)}
 
   /* ── SOCIALS / FOLLOW ── */
   .follow{
@@ -941,7 +958,7 @@
   </div>
 
   <div class="reels">
-    <div class="reels-grid" id="reels-grid" style="max-width:50%"></div>
+    <div class="reels-grid" id="reels-grid"></div>
     <div class="reels-cta">
       <a href="https://www.youtube.com/@SimulatedAnalogues" target="_blank" rel="noopener" class="pill-cta">Visit the channel <span class="arr">→</span></a>
     </div>
@@ -1369,7 +1386,7 @@ everyone everywhere`},
       a.href = '#';
     }
     a.dataset.platform = p.n.toLowerCase().replace(/\s+/g,'-');
-    a.innerHTML = `<span class="pi">${p.i}.</span><img src="${p.img}" alt="${p.n}"/><span class="pn">${p.n}</span>`;
+    a.innerHTML = `<span class="pi">${p.i}.</span><img src="${p.img}" alt="${p.n}"/><span class="pn">${p.n}</span><span class="parr">↗</span>`;
     grid.appendChild(a);
   });
 })();
