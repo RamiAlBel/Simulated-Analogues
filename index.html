@@ -813,6 +813,34 @@
     user-select:none;
   }
 
+  /* ── Section geometric backgrounds ── */
+  section:not(.hero){ position:relative; }
+  section:not(.hero) > *:not(.section-bg){ position:relative; z-index:1; }
+  .section-bg{
+    position:absolute; inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .section-bg .bg-grid{
+    position:absolute; inset:0;
+    display:grid;
+    width:100%; height:100%;
+  }
+  .section-bg .bg-cell{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .section-bg canvas{
+    display:block;
+    opacity:0.62;
+  }
+  html[data-mode="ink"] .section-bg canvas{
+    opacity:0.5;
+  }
+
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation:none !important;transition:none !important}
     .reveal{opacity:1;transform:none}
@@ -1145,6 +1173,354 @@ window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
   ro.observe(container);
 
   requestAnimationFrame(()=>{ sizeAll(); cells.forEach(c=>drawCell(c,0)); });
+})();
+
+/* ── Section backgrounds: geometric grids that draw as you scroll ── */
+(function(){
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function gcd(a,b){ while(b){const t=b;b=a%b;a=t;} return a; }
+
+  /* deterministic RNG (mulberry32) */
+  function makeRng(seed){
+    let s = seed >>> 0;
+    return function(){
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* hue families per row (echo the hero rose grid palette) */
+  const HUE_FAMILIES = [
+    [  5,  35],  /* red → orange  */
+    [ 50, 100],  /* yellow → lime */
+    [160, 210],  /* teal → sky    */
+    [240, 285],  /* blue → violet */
+    [310, 355],  /* magenta → rose */
+  ];
+  function cellHue(r, c, R, C){
+    const fam = HUE_FAMILIES[r % HUE_FAMILIES.length];
+    return fam[0] + (c / Math.max(1, C - 1)) * (fam[1] - fam[0]);
+  }
+
+  /* ── per-section generators ── */
+  const generators = {
+
+    /* Lissajous: x=sin(a·t+φ), y=sin(b·t) */
+    lissajous: {
+      params: function(r, c, R, C){
+        const a = r + 1;
+        const b = c + 1;
+        const phi = (r * 0.3 + c * 0.2);
+        return {
+          a, b, phi,
+          hue: cellHue(r, c, R, C),
+          sat: 60 + ((r*3 + c*2) % 10),
+          lig: 44 + ((c*2) % 10),
+        };
+      },
+      draw: function(ctx, W, H, p, progress, isDark){
+        const tEnd = progress * 2 * Math.PI;
+        if (tEnd < 0.002) return;
+        const steps = Math.min(1500, Math.max(160, Math.ceil(tEnd * 70)));
+        const Rx = W * 0.4, Ry = H * 0.4;
+        const cx = W / 2, cy = H / 2;
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++){
+          const t = (i / steps) * tEnd;
+          const x = cx + Rx * Math.sin(p.a * t + p.phi);
+          const y = cy + Ry * Math.sin(p.b * t);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        const lig = isDark ? p.lig + 22 : p.lig;
+        ctx.strokeStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
+        ctx.lineWidth = Math.max(0.9, Math.min(W, H) * 0.013 / DPR);
+        ctx.globalAlpha = 0.82;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    /* Hypotrochoid spirograph */
+    spirograph: {
+      params: function(r, c, R, C){
+        const Rbig = 7;
+        const rsmall = (r % 4) + 2;  /* 2..5 */
+        const d = (c % 4) + 1;       /* 1..4 */
+        return {
+          Rbig, rsmall, d,
+          T: 2 * Math.PI * rsmall / gcd(Rbig - rsmall, rsmall),
+          hue: cellHue(r, c, R, C),
+          sat: 60 + ((r*5 + c) % 10),
+          lig: 45 + ((c*3) % 10),
+        };
+      },
+      draw: function(ctx, W, H, p, progress, isDark){
+        const tEnd = progress * p.T;
+        if (tEnd < 0.002) return;
+        const Rr = p.Rbig - p.rsmall;
+        const range = Math.abs(Rr) + p.d;
+        const scale = Math.min(W, H) * 0.42 / range;
+        const cx = W / 2, cy = H / 2;
+        const steps = Math.min(2400, Math.max(220, Math.ceil(tEnd * 50)));
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++){
+          const t = (i / steps) * tEnd;
+          const u = Rr / p.rsmall * t;
+          const x = cx + scale * (Rr * Math.cos(t) + p.d * Math.cos(u));
+          const y = cy + scale * (Rr * Math.sin(t) - p.d * Math.sin(u));
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        const lig = isDark ? p.lig + 22 : p.lig;
+        ctx.strokeStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
+        ctx.lineWidth = Math.max(0.8, Math.min(W, H) * 0.011 / DPR);
+        ctx.globalAlpha = 0.78;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    /* Sierpinski triangle by chaos game (seeded for determinism) */
+    sierpinski: {
+      params: function(r, c, R, C){
+        return {
+          rotation: ((r * 47) + (c * 19)) * Math.PI / 180,
+          seed: 1013 + r * 71 + c * 17,
+          hue: cellHue(r, c, R, C),
+          sat: 60 + ((r*4 + c*3) % 10),
+          lig: 45 + ((c*2) % 8),
+          maxPoints: 1400,
+        };
+      },
+      draw: function(ctx, W, H, p, progress, isDark){
+        const N = Math.floor(progress * p.maxPoints);
+        if (N < 1) return;
+        const cx = W / 2, cy = H / 2;
+        const R = Math.min(W, H) * 0.46;
+        const verts = [];
+        for (let i = 0; i < 3; i++){
+          const a = p.rotation + (i / 3) * 2 * Math.PI - Math.PI / 2;
+          verts.push({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) });
+        }
+        const rng = makeRng(p.seed);
+        let x = cx, y = cy;
+        for (let i = 0; i < 8; i++){
+          const v = verts[Math.floor(rng() * 3)];
+          x = (x + v.x) / 2;
+          y = (y + v.y) / 2;
+        }
+        const dot = Math.max(0.8, Math.min(W, H) * 0.007 / DPR);
+        const lig = isDark ? p.lig + 22 : p.lig;
+        ctx.fillStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
+        ctx.globalAlpha = 0.78;
+        for (let i = 0; i < N; i++){
+          const v = verts[Math.floor(rng() * 3)];
+          x = (x + v.x) / 2;
+          y = (y + v.y) / 2;
+          ctx.fillRect(x - dot / 2, y - dot / 2, dot, dot);
+        }
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    /* Phyllotaxis: n-th seed at angle n·θ, radius ∝ √n */
+    phyllotaxis: {
+      params: function(r, c, R, C){
+        const offset = (c - (C - 1) / 2) * 0.35;            /* perturb golden angle */
+        const angle = (137.508 + offset) * Math.PI / 180;
+        return {
+          angle,
+          cscale: 0.055 + (r % R) * 0.004,
+          hue: cellHue(r, c, R, C),
+          sat: 60 + ((r + c*2) % 10),
+          lig: 45 + ((c*2) % 8),
+          maxN: 600,
+        };
+      },
+      draw: function(ctx, W, H, p, progress, isDark){
+        const N = Math.floor(progress * p.maxN);
+        if (N < 1) return;
+        const cx = W / 2, cy = H / 2;
+        const cscale = Math.min(W, H) * p.cscale;
+        const Rmax = Math.min(W, H) * 0.48;
+        const dot = Math.max(0.9, Math.min(W, H) * 0.014 / DPR);
+        const lig = isDark ? p.lig + 22 : p.lig;
+        ctx.fillStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
+        ctx.globalAlpha = 0.8;
+        for (let n = 0; n < N; n++){
+          const rr = cscale * Math.sqrt(n);
+          if (rr > Rmax) break;
+          const a = n * p.angle;
+          const x = cx + rr * Math.cos(a);
+          const y = cy + rr * Math.sin(a);
+          ctx.beginPath();
+          ctx.arc(x, y, dot, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    /* Two-source ripple interference */
+    interference: {
+      params: function(r, c, R, C){
+        const sep = 0.16 + (c / Math.max(1, C - 1)) * 0.34;       /* 0.16..0.50 */
+        const wavelength = 0.07 + (r / Math.max(1, R - 1)) * 0.06;/* 0.07..0.13 */
+        return {
+          sep, wavelength,
+          hue: cellHue(r, c, R, C),
+          sat: 60 + ((r*2 + c) % 10),
+          lig: 45 + ((c*2) % 8),
+          maxRings: 10,
+        };
+      },
+      draw: function(ctx, W, H, p, progress, isDark){
+        if (progress < 0.01) return;
+        const s = Math.min(W, H);
+        const cx = W / 2, cy = H / 2;
+        const dx = p.sep * s;
+        const wl = p.wavelength * s;
+        const rings = Math.ceil(progress * p.maxRings);
+        const Rmax = Math.min(W, H) * 0.7;
+        const lig = isDark ? p.lig + 22 : p.lig;
+        ctx.strokeStyle = `hsl(${p.hue.toFixed(1)},${p.sat}%,${lig}%)`;
+        ctx.lineWidth = Math.max(0.6, s * 0.006 / DPR);
+        ctx.globalAlpha = 0.55;
+        for (let src = 0; src < 2; src++){
+          const ox = cx + (src === 0 ? -dx / 2 : dx / 2);
+          for (let i = 1; i <= rings; i++){
+            const rr = i * wl;
+            if (rr > Rmax) break;
+            ctx.beginPath();
+            ctx.arc(ox, cy, rr, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+    },
+  };
+
+  /* ── build a section's background grid ── */
+  function buildBg(section, cfg){
+    const gen = generators[cfg.generator];
+    if (!gen) return null;
+    const bg = document.createElement('div');
+    bg.className = 'section-bg';
+    bg.setAttribute('aria-hidden', 'true');
+    const grid = document.createElement('div');
+    grid.className = 'bg-grid';
+    grid.style.gridTemplateColumns = `repeat(${cfg.cols},1fr)`;
+    grid.style.gridTemplateRows    = `repeat(${cfg.rows},1fr)`;
+    bg.appendChild(grid);
+    section.insertBefore(bg, section.firstChild);
+
+    const cells = [];
+    for (let r = 0; r < cfg.rows; r++){
+      for (let c = 0; c < cfg.cols; c++){
+        const cellEl = document.createElement('div');
+        cellEl.className = 'bg-cell';
+        const canvas = document.createElement('canvas');
+        cellEl.appendChild(canvas);
+        grid.appendChild(cellEl);
+        cells.push({ canvas, cellEl, params: gen.params(r, c, cfg.rows, cfg.cols) });
+      }
+    }
+    return { section, cells, gen, lastProgress: -1, lastDark: null };
+  }
+
+  function sizeCells(state){
+    state.cells.forEach(({ canvas, cellEl })=>{
+      const rect = cellEl.getBoundingClientRect();
+      const w = Math.round(rect.width  * DPR);
+      const h = Math.round(rect.height * DPR);
+      if (canvas.width !== w || canvas.height !== h){
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.width  = rect.width  + 'px';
+        canvas.style.height = rect.height + 'px';
+      }
+    });
+  }
+
+  function sectionProgress(section){
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight;
+    /* Reach full progress when section center crosses viewport center. */
+    const traveled = vh - rect.top;
+    const goal = (rect.height + vh) * 0.5;
+    return Math.max(0, Math.min(1, traveled / goal));
+  }
+
+  function inViewport(section, slack){
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight;
+    return rect.bottom > -vh * slack && rect.top < vh * (1 + slack);
+  }
+
+  function renderState(state, force){
+    if (!force && !inViewport(state.section, 0.4)) return;
+    const progress = sectionProgress(state.section);
+    const isDark = document.documentElement.dataset.mode === 'ink';
+    if (!force && Math.abs(progress - state.lastProgress) < 0.0008 && state.lastDark === isDark) return;
+    state.lastProgress = progress;
+    state.lastDark = isDark;
+    sizeCells(state);
+    state.cells.forEach(({ canvas, params })=>{
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      state.gen.draw(ctx, canvas.width, canvas.height, params, progress, isDark);
+    });
+  }
+
+  const configs = [
+    { id: 'about',  cols: 4, rows: 3, generator: 'lissajous'    },
+    { id: 'album',  cols: 4, rows: 3, generator: 'spirograph'   },
+    { id: 'reels',  cols: 4, rows: 3, generator: 'sierpinski'   },
+    { id: 'listen', cols: 4, rows: 3, generator: 'phyllotaxis'  },
+    { id: 'tracks', cols: 4, rows: 5, generator: 'interference' },
+  ];
+
+  const states = [];
+  configs.forEach(cfg=>{
+    const section = document.getElementById(cfg.id);
+    if (!section) return;
+    const s = buildBg(section, cfg);
+    if (s) states.push(s);
+  });
+
+  let ticking = false;
+  function tick(){
+    states.forEach(s => renderState(s, false));
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', ()=>{
+    if (!ticking){ ticking = true; requestAnimationFrame(tick); }
+  }, { passive: true });
+
+  /* redraw on theme toggle */
+  const themeObs = new MutationObserver(()=>{
+    states.forEach(s => { s.lastDark = null; });
+    requestAnimationFrame(()=> states.forEach(s => renderState(s, true)));
+  });
+  themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-mode'] });
+
+  /* redraw on layout changes */
+  const ro = new ResizeObserver(()=>{
+    states.forEach(s => { s.lastProgress = -1; });
+    requestAnimationFrame(()=> states.forEach(s => renderState(s, true)));
+  });
+  states.forEach(s => ro.observe(s.section));
+
+  /* initial render */
+  requestAnimationFrame(()=>{
+    states.forEach(s => sizeCells(s));
+    requestAnimationFrame(()=> states.forEach(s => renderState(s, true)));
+  });
 })();
 
 /* ── Marquee ── */
